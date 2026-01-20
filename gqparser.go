@@ -31,8 +31,8 @@ type idxField struct {
 }
 
 type node struct {
-	value    *cmd
-	children []*node
+	value    cmd
+	children []node
 }
 
 func (c cmd) isEqual(o cmd) bool {
@@ -142,30 +142,32 @@ func transform(a any, program []cmd) any {
 	return prev
 }
 
-func buildTree(pgr []cmd) *node {
-	priorities := map[Kind]int{
-		idx:           1,
-		pipe:          2,
-		mapIndexStart: 3,
+func buildTree(pgr []cmd) node {
+	if len(pgr) == 1 {
+		return node{value: pgr[0]}
 	}
 
-	n := &node{}
-	stack := newStack()
+	c := pgr[0]
+	n := node{}
 
-	for _, c := range pgr {
-		if c.kind == mapIndexEnd {
-			continue
+	switch c.kind {
+	case mapIndexStart:
+		for i := len(pgr) - 1; i > 0; i-- {
+			if pgr[i].kind == mapIndexEnd {
+				pgr = append(pgr[:i], pgr[i+1:]...)
+			}
 		}
-
-		n = &node{value: &c}
-
-		for !stack.isEmpty() && priorities[stack.peek().kind] >= priorities[c.kind] {
-			n.children = append(n.children, &node{value: stack.pop()})
+		n.value = c
+		n.children = append(n.children, buildTree(pgr[1:]))
+	case idx:
+		if len(pgr) >= 3 && pgr[1].kind == pipe {
+			n.value = pgr[1]
+			n.children = append(n.children, node{value: pgr[0]}, buildTree(pgr[2:]))
+		} else {
+			n.value = pgr[0]
 		}
-
-		stack.push(n.value)
+		// mapIndexEnd and pipe should be unreachable
 	}
-
 	return n
 }
 

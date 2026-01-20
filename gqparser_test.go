@@ -235,54 +235,114 @@ func TestTranform(t *testing.T) {
 	}
 }
 
-// func TestBuildTree(t *testing.T) {
-// 	testCases := []struct {
-// 		desc string
-// 		cmds []cmd
-// 		pgr  tree
-// 	}{
-// 		{
-// 			desc: "generates proper hierarchy",
-// 			cmds: []cmd{
-// 				{kind: mapIndexStart},
-// 				{kind: mapIndexStart},
-// 				{kind: idx, fields: []idxField{{kind: field, name: "a"}}},
-// 				{kind: pipe},
-// 				{kind: idx, fields: []idxField{{kind: field, name: "b"}}},
-// 				{kind: mapIndexEnd},
-// 				{kind: pipe},
-// 				{kind: idx, fields: []idxField{{kind: idx, idx: 0}}},
-// 				{kind: mapIndexEnd},
-// 			},
-// 			pgr: tree{
-// 				value: &cmd{kind: mapIndexStart},
-// 				left: &tree{
-// 					value: &cmd{kind: pipe},
-// 					left: &tree{
-// 						value: &cmd{kind: mapIndexStart},
-// 						left: &tree{
-// 							value: &cmd{kind: pipe},
-// 							left: &tree{
-// 								value: &cmd{kind: idx, fields: []idxField{{kind: field, name: "a"}}},
-// 							},
-// 							right: &tree{
-// 								value: &cmd{kind: idx, fields: []idxField{{kind: field, name: "b"}}},
-// 							},
-// 						},
-// 					},
-// 					right: &tree{
-// 						value: &cmd{kind: idx, fields: []idxField{{kind: idx, idx: 0}}},
-// 					},
-// 				},
-// 			},
-// 		},
-// 	}
-// 	for _, tC := range testCases {
-// 		t.Run(tC.desc, func(t *testing.T) {
-// 			got := buildTree(tC.cmds)
-// 			if got != tC.pgr {
-// 				t.Fatalf("\nexpected: %v\ngot: %v\n", tC.pgr, got)
-// 			}
-// 		})
-// 	}
-// }
+func (n node) isEqual(o node) bool {
+	if !n.value.isEqual(o.value) || len(n.children) != len(o.children) {
+		return false
+	}
+	for i := range n.children {
+		if !n.children[i].isEqual(o.children[i]) {
+			return false
+		}
+	}
+	return true
+}
+
+func TestBuildTree(t *testing.T) {
+	testCases := []struct {
+		desc string
+		cmds []cmd
+		pgr  node
+	}{
+		{
+			desc: "single index",
+			cmds: []cmd{
+				{kind: idx},
+			},
+			pgr: node{value: cmd{kind: idx}},
+		},
+		{
+			desc: "single depth",
+			cmds: []cmd{
+				{kind: mapIndexStart},
+				{kind: idx},
+				{kind: mapIndexEnd},
+			},
+			pgr: node{value: cmd{kind: mapIndexStart}, children: []node{{value: cmd{kind: idx}}}},
+		},
+		{
+			desc: "multiple depth",
+			cmds: []cmd{
+				{kind: mapIndexStart},
+				{kind: mapIndexStart},
+				{kind: idx},
+				{kind: mapIndexEnd},
+				{kind: mapIndexEnd},
+			},
+			pgr: node{value: cmd{kind: mapIndexStart}, children: []node{{value: cmd{kind: mapIndexStart}, children: []node{
+				{value: cmd{kind: idx}}}}}},
+		},
+		{
+			desc: "pipe",
+			cmds: []cmd{
+				{kind: idx},
+				{kind: pipe},
+				{kind: idx},
+			},
+			pgr: node{value: cmd{kind: pipe}, children: []node{{value: cmd{kind: idx}}, {value: cmd{kind: idx}}}},
+		},
+		{
+			desc: "pipe + depth",
+			cmds: []cmd{
+				{kind: mapIndexStart},
+				{kind: idx},
+				{kind: mapIndexEnd},
+				{kind: pipe},
+				{kind: idx},
+			},
+			pgr: node{value: cmd{kind: pipe}, children: []node{{value: cmd{kind: mapIndexStart}, children: []node{{value: cmd{kind: idx}}}}, {value: cmd{kind: idx}}}},
+		},
+		// {
+		// 	desc: "generates proper hierarchy",
+		// 	cmds: []cmd{
+		// 		{kind: mapIndexStart},
+		// 		{kind: mapIndexStart},
+		// 		{kind: idx, fields: []idxField{{kind: field, name: "a"}}},
+		// 		{kind: pipe},
+		// 		{kind: idx, fields: []idxField{{kind: field, name: "b"}}},
+		// 		{kind: mapIndexEnd},
+		// 		{kind: pipe},
+		// 		{kind: idx, fields: []idxField{{kind: idx, idx: 0}}},
+		// 		{kind: mapIndexEnd},
+		// 	},
+		// 	pgr: node{
+		// 		value: cmd{kind: mapIndexStart},
+		// 		children: []node{
+		// 			{value: cmd{kind: pipe},
+		// 				children: []node{
+		// 					{value: cmd{kind: mapIndexStart},
+		// 						children: []node{
+		// 							{value: cmd{kind: pipe},
+		// 								children: []node{
+		// 									{value: cmd{kind: idx, fields: []idxField{{kind: field, name: "a"}}}},
+		// 									{
+		// 										value: cmd{kind: idx, fields: []idxField{{kind: field, name: "b"}}},
+		// 									},
+		// 								},
+		// 							},
+		// 							{
+		// 								value: cmd{kind: idx, fields: []idxField{{kind: idx, idx: 0}}},
+		// 							},
+		// 						}}}},
+		// 		},
+		// 	},
+		// }
+	}
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(t *testing.T) {
+			got := buildTree(tC.cmds)
+			if !got.isEqual(tC.pgr) {
+				t.Fatalf("\nexpected: %v\ngot: %v\n", tC.pgr, got)
+			}
+		})
+	}
+}
