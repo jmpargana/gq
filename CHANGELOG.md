@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/jmpargana/gq/compare/v1.0.0...v1.0.1) (2026-01-23)
+
+
+### Bug Fixes
+
+* add bot credentials to trigger release ([ba22ca0](https://github.com/jmpargana/gq/commit/ba22ca0dddaf2e64471acf3b940defb242210b71))
+
 # 1.0.0 (2026-01-23)
 
 
