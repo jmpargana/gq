@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/jmpargana/gq/compare/v1.0.1...v1.0.2) (2026-01-23)
+
+
+### Bug Fixes
+
+* trigger after tag ([cea35a6](https://github.com/jmpargana/gq/commit/cea35a648c3752cd240a6d72a0b9d8eb02ed7d27))
+
 ## [1.0.1](https://github.com/jmpargana/gq/compare/v1.0.0...v1.0.1) (2026-01-23)
 
 
