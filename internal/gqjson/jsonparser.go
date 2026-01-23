@@ -1,4 +1,4 @@
-package main
+package gqjson
 
 import (
 	"bufio"
@@ -57,14 +57,14 @@ func parseBool(ch rune, r *bufio.Reader) bool {
 	out := false
 	n := 4
 	if ch == 't' {
-		// take rue
 		n = 3
 		out = true
-	} else {
-		// take alse
 	}
 	for i := 0; i < n; i++ {
-		r.ReadRune()
+		_, _, err := r.ReadRune()
+		if err != nil {
+			panic(err)
+		}
 	}
 	return out
 }
@@ -78,7 +78,7 @@ func parseList(r *bufio.Reader) []any {
 		}
 		switch ch {
 		case '{':
-			out = append(out, parseObject(r))
+			out = append(out, ParseObject(r))
 		case ',':
 			continue
 		case ']':
@@ -96,7 +96,7 @@ func parseList(r *bufio.Reader) []any {
 	return out
 }
 
-func parseObject(r *bufio.Reader) any {
+func ParseObject(r *bufio.Reader) any {
 	out := map[string]any{}
 	ident := ""
 	key := true
@@ -118,7 +118,7 @@ func parseObject(r *bufio.Reader) any {
 		case '{':
 			{
 				if pendingKey != "" {
-					out[pendingKey] = parseObject(r)
+					out[pendingKey] = ParseObject(r)
 				}
 			}
 		case '"':

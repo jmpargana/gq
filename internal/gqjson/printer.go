@@ -1,19 +1,10 @@
-package main
+package gqjson
 
 import "fmt"
 
 const ident = 2
 
-var reset = "\x1b[0m"
-
-var levelColor = map[int]string{
-	0: "\x1b[31",
-	1: "\x1b[32",
-	2: "\x1b[33",
-	3: "\x1b[34",
-	4: "\x1b[35",
-}
-
+// FIXME: fix performance issue with string append
 func printList(l []any, level int) string {
 	s := "[\n"
 	for i, it := range l {
@@ -87,7 +78,7 @@ func printObj(obj map[string]any, level int) string {
 	return s
 }
 
-func print(s any) {
+func Print(s any) {
 	switch s := s.(type) {
 	case map[string]any:
 		fmt.Println(printObj(s, 0))
