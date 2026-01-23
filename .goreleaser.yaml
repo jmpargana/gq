@@ -18,6 +18,11 @@ before:
 builds:
   - env:
       - CGO_ENABLED=0
+    binary: bin/gq
+    main: ./cmd/gq
+    ldflags:
+      - -s -w
+      - -X main.version={{ .Version }}
     goos:
       - linux
       - windows
