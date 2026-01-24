@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/jmpargana/gq/compare/v1.0.2...v1.1.0) (2026-01-24)
+
+
+### Features
+
+* release to homebrew ([d813368](https://github.com/jmpargana/gq/commit/d8133687acc5a9227d45683ebb6e9a6577b8a984))
+
 ## [1.0.2](https://github.com/jmpargana/gq/compare/v1.0.1...v1.0.2) (2026-01-23)
 
 
