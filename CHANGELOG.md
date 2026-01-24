@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/jmpargana/gq/compare/v1.1.0...v1.1.1) (2026-01-24)
+
+
+### Bug Fixes
+
+* homebrew path ([c9e1078](https://github.com/jmpargana/gq/commit/c9e10783aaa23b8a90d12cb845f9b9314fcf45b3))
+
 # [1.1.0](https://github.com/jmpargana/gq/compare/v1.0.2...v1.1.0) (2026-01-24)
 
 
