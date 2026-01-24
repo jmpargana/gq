@@ -67,7 +67,7 @@ brews:
     description: jq like cli written in go
     license: MIT
     install: |
-      bin.install "gq"
+      bin.install Dir["*/gq"]
     test: |
       system "#{bin}/gq --version"
     # Repository to push the generated files to.
