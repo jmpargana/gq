@@ -56,3 +56,24 @@ release:
     ---
 
     Released by [GoReleaser](https://github.com/goreleaser/goreleaser).
+
+brews:
+  - name: gq
+    commit_author:
+      name: Joao Pargana
+      email: jmpargana@gmail.com
+    commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
+    directory: Formula
+    description: jq like cli written in go
+    license: MIT
+    install: |
+      bin.install "gq"
+    test: |
+      system "#{bin}/gq --version"
+    # Repository to push the generated files to.
+    repository:
+      owner: jmpargana
+      name: homebrew-tools
+      branch: main
+      token: "{{ .Env.GITHUB_TOKEN }}"
+
