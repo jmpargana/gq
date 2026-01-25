@@ -56,5 +56,5 @@ COPY --from=build /bin/cli /bin/
 ENTRYPOINT [ "/bin/cli" ]
 
 FROM scratch AS goreleaser
-ENTRYPOINT [ "gq" ]
+ENTRYPOINT [ "./gq" ]
 COPY bin/gq /
