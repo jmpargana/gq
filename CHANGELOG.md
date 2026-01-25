@@ -1,3 +1,10 @@
+## [1.2.6](https://github.com/jmpargana/gq/compare/v1.2.5...v1.2.6) (2026-01-25)
+
+
+### Bug Fixes
+
+* print all json types ([62f3b3c](https://github.com/jmpargana/gq/commit/62f3b3c23444398d16b16c0d648ed34c002bd9e8))
+
 ## [1.2.5](https://github.com/jmpargana/gq/compare/v1.2.4...v1.2.5) (2026-01-25)
 
 
