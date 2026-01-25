@@ -1,3 +1,10 @@
+## [1.2.5](https://github.com/jmpargana/gq/compare/v1.2.4...v1.2.5) (2026-01-25)
+
+
+### Bug Fixes
+
+* docker image ([97d49af](https://github.com/jmpargana/gq/commit/97d49af33ea5dd6845b0a9e57155a8bd9f50c579))
+
 ## [1.2.4](https://github.com/jmpargana/gq/compare/v1.2.3...v1.2.4) (2026-01-25)
 
 
