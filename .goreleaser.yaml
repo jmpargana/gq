@@ -77,3 +77,11 @@ brews:
       branch: main
       token: "{{ .Env.GITHUB_TOKEN }}"
 
+dockers:
+  - image_templates:
+      - jmpargana/gq:latest
+      - "jmpargana/gq:{{ .Tag }}"
+      - gcr.io/jmpargana/gq:latest
+      - "gcr.io/jmpargana/gq:{{ .Tag }}"
+    build_flag_templates:
+      - --target=goreleaser
