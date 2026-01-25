@@ -57,4 +57,4 @@ ENTRYPOINT [ "/bin/cli" ]
 
 FROM scratch AS goreleaser
 ENTRYPOINT [ "gq" ]
-COPY gq /
+COPY bin/gq /
