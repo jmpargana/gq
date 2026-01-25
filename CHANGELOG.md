@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/jmpargana/gq/compare/v1.2.0...v1.2.1) (2026-01-25)
+
+
+### Bug Fixes
+
+* goreleaser ([cc16742](https://github.com/jmpargana/gq/commit/cc16742832a2a93c4813f4c0442af7833fda5f0f))
+
 # [1.2.0](https://github.com/jmpargana/gq/compare/v1.1.1...v1.2.0) (2026-01-25)
 
 
