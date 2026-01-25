@@ -1,3 +1,10 @@
+## [1.2.3](https://github.com/jmpargana/gq/compare/v1.2.2...v1.2.3) (2026-01-25)
+
+
+### Bug Fixes
+
+* login to docker hub before release ([38e1704](https://github.com/jmpargana/gq/commit/38e170422bd729a26d1c63d1a7d10880eec5211b))
+
 ## [1.2.2](https://github.com/jmpargana/gq/compare/v1.2.1...v1.2.2) (2026-01-25)
 
 
