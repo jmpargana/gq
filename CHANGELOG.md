@@ -1,3 +1,10 @@
+## [1.2.2](https://github.com/jmpargana/gq/compare/v1.2.1...v1.2.2) (2026-01-25)
+
+
+### Bug Fixes
+
+* dockerfile entrypoint path ([d9365e1](https://github.com/jmpargana/gq/commit/d9365e16ddbb70357e42e71927ce1f6fcbc9453a))
+
 ## [1.2.1](https://github.com/jmpargana/gq/compare/v1.2.0...v1.2.1) (2026-01-25)
 
 
