@@ -1,3 +1,10 @@
+## [1.2.4](https://github.com/jmpargana/gq/compare/v1.2.3...v1.2.4) (2026-01-25)
+
+
+### Bug Fixes
+
+* remove github cr from docker release ([1729ea0](https://github.com/jmpargana/gq/commit/1729ea04d9e4fcbec8ba3f1340ab1553ccf00077))
+
 ## [1.2.3](https://github.com/jmpargana/gq/compare/v1.2.2...v1.2.3) (2026-01-25)
 
 
