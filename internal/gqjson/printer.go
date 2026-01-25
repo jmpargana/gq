@@ -78,11 +78,21 @@ func printObj(obj map[string]any, level int) string {
 	return s
 }
 
+// type token any
+// TODO: refactor to token.String()
 func Print(s any) {
 	switch s := s.(type) {
 	case map[string]any:
 		fmt.Println(printObj(s, 0))
 	case []any:
 		fmt.Println(printList(s, 0))
+	case int64:
+		fmt.Printf("%d\n", s)
+	case bool:
+		fmt.Printf("%t\n", s)
+	case float64:
+		fmt.Printf("%0.2f\n", s)
+	case string:
+		fmt.Printf("\"%s\"\n", s)
 	}
 }
