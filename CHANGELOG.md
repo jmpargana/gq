@@ -1,3 +1,15 @@
+# [1.3.0](https://github.com/jmpargana/gq/compare/v1.2.5...v1.3.0) (2026-01-25)
+
+
+### Bug Fixes
+
+* print all json types ([62f3b3c](https://github.com/jmpargana/gq/commit/62f3b3c23444398d16b16c0d648ed34c002bd9e8))
+
+
+### Features
+
+* use cobra and add version flag ([d1ca11e](https://github.com/jmpargana/gq/commit/d1ca11eb13cd9a98a77f3b879de554f1d24c6620))
+
 ## [1.2.5](https://github.com/jmpargana/gq/compare/v1.2.4...v1.2.5) (2026-01-25)
 
 
