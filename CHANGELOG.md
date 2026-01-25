@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/jmpargana/gq/compare/v1.1.1...v1.2.0) (2026-01-25)
+
+
+### Features
+
+* add docker release ([93708f6](https://github.com/jmpargana/gq/commit/93708f6df0a6b6b021ebdc8b391a6978a0e2a5da))
+
 ## [1.1.1](https://github.com/jmpargana/gq/compare/v1.1.0...v1.1.1) (2026-01-24)
 
 
