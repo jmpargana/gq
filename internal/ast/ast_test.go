@@ -26,6 +26,14 @@ func TestTranform(t *testing.T) {
 			},
 		},
 		{
+			desc: "root is same",
+			a:    "[5, 10, 15, 20]",
+			b:    []interface{}{int64(5), int64(10), int64(15), int64(20)},
+			pgr: u.Node{
+				Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.ROOT}}},
+			},
+		},
+		{
 			desc: "list index",
 			a:    "[5, 10, [21, 22], 20]",
 			b:    int64(21),

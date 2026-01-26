@@ -11,6 +11,9 @@ import (
 func createIdxField(s string) u.IdxField {
 	n, err := strconv.Atoi(s)
 	if err != nil {
+		if s == "" {
+			return u.IdxField{Kind: u.ROOT}
+		}
 		return u.IdxField{Kind: u.FIELD, Name: s}
 	}
 	return u.IdxField{Kind: u.IDX, Idx: n}

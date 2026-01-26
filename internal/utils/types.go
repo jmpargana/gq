@@ -12,6 +12,7 @@ const (
 	DICTEND
 	ASSIGN
 	COMMA
+	ROOT
 )
 
 type Cmd struct {
