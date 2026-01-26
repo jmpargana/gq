@@ -1,3 +1,11 @@
+## [1.3.1](https://github.com/jmpargana/gq/compare/v1.3.0...v1.3.1) (2026-01-26)
+
+
+### Bug Fixes
+
+* add int tests and early returns ([98853a2](https://github.com/jmpargana/gq/commit/98853a299da8fe6d6ffb2520b6ce00288b46b1b4))
+* lint ([935db07](https://github.com/jmpargana/gq/commit/935db07edb1a066822b32366ab867f2b0aeafa56))
+
 # [1.3.0](https://github.com/jmpargana/gq/compare/v1.2.5...v1.3.0) (2026-01-25)
 
 
