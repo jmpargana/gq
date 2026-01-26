@@ -16,7 +16,7 @@ func TestGQParser(t *testing.T) {
 			desc: "root",
 			str:  ".",
 			pgr: []u.Cmd{
-				{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.FIELD, Name: ""}}},
+				{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.ROOT}}},
 			},
 		},
 		{
@@ -125,9 +125,9 @@ func TestGQParser(t *testing.T) {
 			desc: "u.PIPE",
 			str:  ". | .",
 			pgr: []u.Cmd{
-				{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.FIELD, Name: ""}}},
+				{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.ROOT}}},
 				{Kind: u.PIPE},
-				{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.FIELD, Name: ""}}},
+				{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.ROOT}}},
 			},
 		},
 		{
