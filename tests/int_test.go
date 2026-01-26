@@ -9,39 +9,38 @@ import (
 	"testing"
 )
 
-
-var cliPath string = "gq"
+var cliPath = "gq"
 
 func TestMain(m *testing.M) {
-    tmp := os.TempDir()
-    cliPath = filepath.Join(tmp, "mycli-test")
+	tmp := os.TempDir()
+	cliPath = filepath.Join(tmp, "mycli-test")
 
-    cmd := exec.Command("go", "build", "-o", cliPath, "../cmd/gq")
-    if err := cmd.Run(); err != nil {
-        panic(err)
-    }
+	cmd := exec.Command("go", "build", "-o", cliPath, "../cmd/gq")
+	if err := cmd.Run(); err != nil {
+		panic(err)
+	}
 
-    code := m.Run()
-    os.Remove(cliPath)
-    os.Exit(code)
+	code := m.Run()
+	os.Remove(cliPath)
+	os.Exit(code)
 }
 
 func TestCLI_Version(t *testing.T) {
-    cmd := exec.Command(cliPath, "--version")
+	cmd := exec.Command(cliPath, "--version")
 
-    var stdout, stderr bytes.Buffer
-    cmd.Stdout = &stdout
-    cmd.Stderr = &stderr
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
 
-    err := cmd.Run()
+	err := cmd.Run()
 
-    if err != nil {
-        t.Fatalf("command failed: %v\nstderr: %s", err, stderr.String())
-    }
+	if err != nil {
+		t.Fatalf("command failed: %v\nstderr: %s", err, stderr.String())
+	}
 
-    if !strings.Contains(stdout.String(), "Version:") {
-        t.Fatalf("unexpected output: %s", stdout.String())
-    }
+	if !strings.Contains(stdout.String(), "Version:") {
+		t.Fatalf("unexpected output: %s", stdout.String())
+	}
 }
 
 func TestCLI_Root(t *testing.T) {
@@ -49,15 +48,15 @@ func TestCLI_Root(t *testing.T) {
 		desc, stdin, program, wantOut, wantErr string
 	}{
 		{
-			desc: "root without stdin returns usage",
-			stdin: "",
+			desc:    "root without stdin returns usage",
+			stdin:   "",
 			program: "",
 			wantOut: "",
 			wantErr: "Error",
 		},
 		{
-			desc: "root without stdin returns usage",
-			stdin: `{"a": "b"}`,
+			desc:    "root without stdin returns usage",
+			stdin:   `{"a": "b"}`,
 			program: "",
 			wantOut: "",
 			wantErr: "no program provided",
