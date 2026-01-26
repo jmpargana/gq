@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/jmpargana/gq/compare/v1.3.1...v1.4.0) (2026-01-26)
+
+
+### Features
+
+* return root ([b9706ca](https://github.com/jmpargana/gq/commit/b9706cafe6fdf760c211e21c98d37dad04b92a86))
+
 ## [1.3.1](https://github.com/jmpargana/gq/compare/v1.3.0...v1.3.1) (2026-01-26)
 
 
