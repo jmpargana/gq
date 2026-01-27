@@ -37,7 +37,11 @@ func Lex(program string) []u.Cmd {
 		switch rn {
 		case '|':
 			if indexing {
-				fields = append(fields, createIdxField(fieldName))
+				if prev == '[' {
+					fields = append(fields, u.IdxField{Kind: u.ARRAY})
+				} else {
+					fields = append(fields, createIdxField(fieldName))
+				}
 				pgr = append(pgr, u.Cmd{Kind: u.IDX, Fields: fields})
 				fields = []u.IdxField{}
 				fieldName = ""
@@ -49,18 +53,25 @@ func Lex(program string) []u.Cmd {
 				indexing = false
 				pgr = append(pgr, u.Cmd{Kind: u.PIPE})
 			}
+			prev = ' '
 		case '"', ' ':
 		case ']':
 			// Check conflict with }
 			if wrapping > 0 {
 				if prev != ']' && prev != '}' {
-					fields = append(fields, createIdxField(fieldName))
+					if prev == '[' {
+						fields = append(fields, u.IdxField{Kind: u.ARRAY})
+					} else {
+						fields = append(fields, createIdxField(fieldName))
+					}
 					pgr = append(pgr, u.Cmd{Kind: u.IDX, Fields: fields})
 				}
 				fieldName = ""
 				fields = []u.IdxField{}
-				pgr = append(pgr, u.Cmd{Kind: u.INDEXEND})
-				wrapping--
+				if prev != '[' {
+					pgr = append(pgr, u.Cmd{Kind: u.INDEXEND})
+					wrapping--
+				}
 				indexing = false
 				prev = ']'
 			}
@@ -73,6 +84,7 @@ func Lex(program string) []u.Cmd {
 				fields = append(fields, createIdxField(fieldName))
 				fieldName = ""
 			}
+			prev = '['
 		case '.':
 			indexing = true
 			if fieldName != "" {
@@ -89,7 +101,11 @@ func Lex(program string) []u.Cmd {
 			}
 		case ',':
 			if prev != ']' && prev != '}' {
-				fields = append(fields, createIdxField(fieldName))
+				if prev == '[' {
+					fields = append(fields, u.IdxField{Kind: u.ARRAY})
+				} else {
+					fields = append(fields, createIdxField(fieldName))
+				}
 				pgr = append(pgr, u.Cmd{Kind: u.IDX, Fields: fields})
 				prev = ' '
 			}
@@ -99,7 +115,11 @@ func Lex(program string) []u.Cmd {
 		case '}':
 			if mapping > 0 {
 				if prev != ']' && prev != '}' {
-					fields = append(fields, createIdxField(fieldName))
+					if prev == '[' {
+						fields = append(fields, u.IdxField{Kind: u.ARRAY})
+					} else {
+						fields = append(fields, createIdxField(fieldName))
+					}
 					pgr = append(pgr, u.Cmd{Kind: u.IDX, Fields: fields})
 				}
 				fieldName = ""
@@ -118,7 +138,11 @@ func Lex(program string) []u.Cmd {
 
 	// TODO: fix last value pop
 	if len(pgr) == 0 || (pgr[len(pgr)-1].Kind != u.INDEXEND && pgr[len(pgr)-1].Kind != u.DICTEND) {
-		fields = append(fields, createIdxField(fieldName))
+		if prev == '[' {
+			fields = append(fields, u.IdxField{Kind: u.ARRAY})
+		} else {
+			fields = append(fields, createIdxField(fieldName))
+		}
 		pgr = append(pgr, u.Cmd{Kind: u.IDX, Fields: fields})
 	}
 
