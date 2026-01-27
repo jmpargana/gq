@@ -27,6 +27,69 @@ func TestGQParser(t *testing.T) {
 			},
 		},
 		{
+			desc: "entire array",
+			str:  ".[]",
+			pgr: []u.Cmd{
+				{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.ARRAY}}},
+			},
+		},
+		{
+			desc: "entire array inside array",
+			str:  "[.[]]",
+			pgr: []u.Cmd{
+				{Kind: u.INDEXSTART},
+				{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.ARRAY}}},
+				{Kind: u.INDEXEND},
+			},
+		},
+		{
+			desc: "array index with pipe and nested",
+			str:  "[.[] | .[0]]",
+			pgr: []u.Cmd{
+				{Kind: u.INDEXSTART},
+				{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.ARRAY}}},
+				{Kind: u.PIPE},
+				{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.IDX, Idx: 0}}},
+				{Kind: u.INDEXEND},
+			},
+		},
+		{
+			desc: "array index with pipe and nested",
+			str:  "[.[] | .[]]",
+			pgr: []u.Cmd{
+				{Kind: u.INDEXSTART},
+				{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.ARRAY}}},
+				{Kind: u.PIPE},
+				{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.ARRAY}}},
+				{Kind: u.INDEXEND},
+			},
+		},
+		{
+			desc: "array index inside dictionary",
+			str:  "{a: .[] | .[0]}",
+			pgr: []u.Cmd{
+				{Kind: u.DICTSTART},
+				{Kind: u.ASSIGN},
+				{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.ARRAY}}},
+				{Kind: u.PIPE},
+				{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.IDX, Idx: 0}}},
+				{Kind: u.DICTEND},
+			},
+		},
+		{
+			desc: "cartesian product",
+			str:  "{a: .[], b: .[]}",
+			pgr: []u.Cmd{
+				{Kind: u.DICTSTART},
+				{Kind: u.ASSIGN},
+				{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.ARRAY}}},
+				{Kind: u.COMMA},
+				{Kind: u.ASSIGN},
+				{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.ARRAY}}},
+				{Kind: u.DICTEND},
+			},
+		},
+		{
 			desc: "FieldA under quotes",
 			str:  ".\"FieldA\"",
 			pgr: []u.Cmd{

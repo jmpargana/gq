@@ -13,6 +13,7 @@ const (
 	ASSIGN
 	COMMA
 	ROOT
+	ARRAY
 )
 
 type Cmd struct {
@@ -30,6 +31,16 @@ type IdxField struct {
 type Node struct {
 	Value    Cmd
 	Children []Node
+}
+
+type Stream struct {
+	O []any
+}
+
+func NewStream() Stream {
+	return Stream{
+		O: []any{},
+	}
 }
 
 func (c Cmd) IsEqual(o Cmd) bool {

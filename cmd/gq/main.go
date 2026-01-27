@@ -12,6 +12,7 @@ import (
 	json "github.com/jmpargana/gq/internal/gqjson"
 	"github.com/jmpargana/gq/internal/lexer"
 	"github.com/jmpargana/gq/internal/parser"
+	u "github.com/jmpargana/gq/internal/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -40,10 +41,23 @@ var rootCmd = &cobra.Command{
 		// TODO: replace with cobra args
 		tokens := lexer.Lex(os.Args[1])
 		p := parser.NewParser(tokens)
+
 		t := p.ParseExpr()
+
+		debug, _ := cmd.Flags().GetBool("debug")
+		if debug {
+			fmt.Println("Generated AST:")
+			fmt.Println()
+			fmt.Println(ast.PrintAST(t, 0))
+		}
+
 		obj := json.ParseObject(r)
-		result := ast.Transform(obj, t)
-		json.Print(result)
+		stream := u.NewStream()
+		stream.O = append(stream.O, obj)
+		result := ast.TransformStream(stream, t)
+		for _, r := range result.O {
+			json.Print(r)
+		}
 
 		return nil
 	},
@@ -82,6 +96,7 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	rootCmd.Flags().BoolP("version", "v", false, "Display CLI version")
+	rootCmd.Flags().BoolP("debug", "d", false, "Displays AST from requested expression")
 }
 
 func main() {
