@@ -1,3 +1,11 @@
+# [1.5.0](https://github.com/jmpargana/gq/compare/v1.4.0...v1.5.0) (2026-01-27)
+
+
+### Features
+
+* add debug ([7b7eed3](https://github.com/jmpargana/gq/commit/7b7eed34b3250ae283d7bfe91a2f1abf4220fca5))
+* add iterator ([f2865b2](https://github.com/jmpargana/gq/commit/f2865b2e5f03fed05486f2b522460ae1e1452173))
+
 # [1.4.0](https://github.com/jmpargana/gq/compare/v1.3.1...v1.4.0) (2026-01-26)
 
 
