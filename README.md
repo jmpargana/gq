@@ -8,7 +8,7 @@
 ![Go Report Card](https://goreportcard.com/badge/github.com/jmpargana/gq)
 ![Release](https://img.shields.io/github/v/release/jmpargana/gq)
 ![Homebrew](https://img.shields.io/badge/homebrew-available-brightgreen)
-![Security](https://img.shields.io/github/actions/workflow/status/jmpargana/gq/security.yml?label=security)
+![Security](https://img.shields.io/github/actions/workflow/status/jmpargana/gq/govulncheck.yml?label=security)
 
 
 </div>
