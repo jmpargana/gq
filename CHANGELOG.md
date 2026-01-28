@@ -1,3 +1,10 @@
+## [1.6.4](https://github.com/jmpargana/gq/compare/v1.6.3...v1.6.4) (2026-01-28)
+
+
+### Bug Fixes
+
+* goreleaser version flag ([8cabf53](https://github.com/jmpargana/gq/commit/8cabf539ee6f1bde1fc49b2e69189edcdf5090eb))
+
 ## [1.6.3](https://github.com/jmpargana/gq/compare/v1.6.2...v1.6.3) (2026-01-28)
 
 
