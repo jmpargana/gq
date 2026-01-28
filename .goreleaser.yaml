@@ -30,7 +30,8 @@ builds:
       - darwin
 
 archives:
-  - files:
+  - id: manpages
+    files:
     - gq.1
   - formats: [tar.gz]
     # this name template makes the OS and Arch compatible with the results of `uname`.

@@ -24,6 +24,9 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: true
+      - run: |
+          git fetch origin main --tags
+          git reset --hard origin/main
 
       - uses: actions/setup-node@v6
         with:
