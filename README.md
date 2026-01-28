@@ -83,15 +83,20 @@ Given an input file `input.json`:
 You can run:
 
 ```sh
-cat input.json | gq '{name: .[1].name}'
+cat input.json | gq '[{newName: .[] | .name}]' # or '[.[] | {newName: .name}]'
 ```
 
 Output:
 
 ```text
-{
-  "name": "Bob"
-}
+[
+  {
+    "name": "Bob"
+  },
+  {
+    "name": "Bob"
+  }
+]
 ```
 
 ---
