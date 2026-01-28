@@ -7,6 +7,22 @@ import (
 func TransformStream(s u.Stream, n u.Node) u.Stream {
 	prev := s
 
+	if n.Value.Kind == u.PIPE {
+
+		// TODO: test chained pipes vs multiple children
+		left := TransformStream(prev, n.Children[0])
+		rightNode := n.Children[1]
+
+		next := u.NewStream()
+
+		for _, it := range left.O {
+			out := TransformStream(u.NewSingleStream(it), rightNode)
+			next.O = append(next.O, out.O...)
+		}
+
+		return next
+	}
+
 	// prevent doubled indexing when creating dict
 	if n.Value.Kind == u.ASSIGN {
 		return prev
@@ -22,9 +38,7 @@ func TransformStream(s u.Stream, n u.Node) u.Stream {
 	case u.INDEXSTART:
 		arr := []any{}
 		arr = append(arr, prev.O...)
-		nextS := u.NewStream()
-		nextS.O = append(nextS.O, arr)
-		prev = nextS
+		prev = u.NewSingleStream(arr)
 	case u.DICTSTART:
 		prev = dictStream(prev, n)
 	}
@@ -32,75 +46,41 @@ func TransformStream(s u.Stream, n u.Node) u.Stream {
 	return prev
 }
 
-func Transform(o any, n u.Node) any {
-	prev := o
-
-	// prevent doubled indexing when creating dict
-	if n.Value.Kind == u.ASSIGN {
-		return prev
-	}
-
-	for _, c := range n.Children {
-		prev = Transform(prev, c)
-	}
-
-	switch n.Value.Kind {
-	case u.IDX:
-		prev = index(prev, n.Value)
-	case u.INDEXSTART:
-		prev = []any{prev}
-	case u.DICTSTART:
-		prev = dict(prev, n)
-	}
-
-	return prev
-}
-
-func dict(o any, n u.Node) any {
-	m := map[string]any{}
-	for _, c := range n.Children {
-		m[c.Value.Ident] = Transform(o, c.Children[0])
-	}
-	return m
-}
-
-// FIXME: add error handling
-func index(o any, c u.Cmd) any {
-	prev := o
-	for _, f := range c.Fields {
-		if f.Kind == u.IDX {
-			l := prev.([]any)
-			prev = l[f.Idx]
-		}
-		if f.Kind == u.FIELD {
-			m := prev.(map[string]any)
-			prev = m[f.Name]
-		}
-	}
-	return prev
-}
-
 func indexStream(s u.Stream, c u.Cmd) u.Stream {
 	nextS := u.NewStream()
 	for _, o := range s.O {
-		prev := o
+		prevs := []any{o}
 
 		for _, f := range c.Fields {
-			switch f.Kind {
-			case u.IDX:
-				l := prev.([]any)
-				prev = l[f.Idx]
-			case u.FIELD:
-				m := prev.(map[string]any)
-				prev = m[f.Name]
-			case u.ARRAY:
-				l := prev.([]any)
-				nextS.O = append(nextS.O, l...)
-				return nextS
+			var newPrevs []any
+
+			for _, prev := range prevs {
+				switch f.Kind {
+				case u.IDX:
+					l := prev.([]any)
+					newPrevs = append(newPrevs, l[f.Idx])
+				case u.ROOT:
+					newPrevs = append(newPrevs, prev)
+				case u.FIELD:
+					m := prev.(map[string]any)
+					newPrevs = append(newPrevs, m[f.Name])
+				case u.ARRAY:
+					switch prev := prev.(type) {
+					case []any:
+						l := prev
+						newPrevs = append(newPrevs, l...)
+					case map[string]any:
+						for _, v := range prev {
+							newPrevs = append(newPrevs, v)
+						}
+					}
+				}
 			}
+
+			prevs = newPrevs
 		}
 
-		nextS.O = append(nextS.O, prev)
+		nextS.O = append(nextS.O, prevs...)
 	}
 	return nextS
 }

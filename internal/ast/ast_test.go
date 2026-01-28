@@ -124,9 +124,11 @@ func TestTranform(t *testing.T) {
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
 			a := json.ParseObject(bufio.NewReader(strings.NewReader(tC.a)))
-			got := Transform(a, tC.pgr)
-			if !reflect.DeepEqual(tC.b, got) {
-				t.Fatalf("not equal:\ngot: %v\nwanted: %v", got, tC.b)
+			s := u.NewSingleStream(a)
+			got := TransformStream(s, tC.pgr)
+			expected := u.NewSingleStream(tC.b)
+			if !reflect.DeepEqual(expected, got) {
+				t.Fatalf("not equal:\ngot: %v\nwanted: %v", got, expected)
 			}
 		})
 	}
@@ -235,6 +237,36 @@ func TestTransformStream(t *testing.T) {
 									{Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.ARRAY}}}},
 								},
 							},
+						},
+					},
+				},
+			},
+		},
+		{
+			// '[.[]]'
+			desc:   "array of iter",
+			start:  `[1, 2]`,
+			result: u.Stream{O: []any{[]any{int64(1), int64(2)}}},
+			program: u.Node{
+				Value: u.Cmd{Kind: u.INDEXSTART},
+				Children: []u.Node{
+					{Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.ARRAY}}}},
+				},
+			},
+		},
+		{
+			// '.[] | [.]'
+			desc:   "piped array",
+			start:  `[1, 2]`,
+			result: u.Stream{O: []any{[]any{int64(1)}, []any{int64(2)}}},
+			program: u.Node{
+				Value: u.Cmd{Kind: u.PIPE},
+				Children: []u.Node{
+					{Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.ARRAY}}}},
+					{
+						Value: u.Cmd{Kind: u.INDEXSTART},
+						Children: []u.Node{
+							{Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.ROOT}}}},
 						},
 					},
 				},
