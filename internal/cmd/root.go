@@ -31,6 +31,7 @@ List of battle tested features:
 	
 Additionally, you can also view the AST of your jqlang expression.
 `,
+	Args: cobra.ArbitraryArgs,
 	RunE: func(cmd *cobra.Command, _ []string) error {
 		if err := requireStdin(); err != nil {
 			return err
