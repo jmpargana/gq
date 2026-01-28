@@ -91,10 +91,10 @@ Output:
 ```text
 [
   {
-    "name": "Bob"
+    "newName": "Alice"
   },
   {
-    "name": "Bob"
+    "newName": "Bob"
   }
 ]
 ```
