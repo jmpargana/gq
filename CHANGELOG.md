@@ -5,6 +5,13 @@
 
 * refactor to cleaner lexer and parser ([10a7940](https://github.com/jmpargana/gq/commit/10a794056a896a470ec2f4e779bf2191c23a0d21))
 
+# [1.6.0](https://github.com/jmpargana/gq/compare/v1.5.0...v1.6.0) (2026-01-28)
+
+
+### Features
+
+* refactor to cleaner lexer and parser ([10a7940](https://github.com/jmpargana/gq/commit/10a794056a896a470ec2f4e779bf2191c23a0d21))
+
 # [1.5.0](https://github.com/jmpargana/gq/compare/v1.4.0...v1.5.0) (2026-01-27)
 
 
