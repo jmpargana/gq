@@ -1,10 +1,19 @@
+<div align="center">
+  <img src="assets/gq-logo.png" alt="gq logo" height="30%" width="500" />
+<br />
 
+[![Go Version](https://img.shields.io/badge/go-1.25+-blue)]()
 [![License](https://img.shields.io/badge/license-MIT-green)]()
-![coverage](https://raw.githubusercontent.com/org/project/badges/.badges/main/coverage.svg)
+![Coverage](https://raw.githubusercontent.com/org/project/badges/.badges/main/coverage.svg)
+![Go Report Card](https://goreportcard.com/badge/github.com/jmpargana/gq)
+![Release](https://img.shields.io/github/v/release/jmpargana/gq)
+![Homebrew](https://img.shields.io/badge/homebrew-available-brightgreen)
+![Security](https://img.shields.io/github/actions/workflow/status/jmpargana/gq/security.yml?label=security)
 
-# gq
 
-## Description
+</div>
+
+## gq CLI
 
 `gq` is a jq-like command-line tool written in Go, inspired by one of John Crickett’s coding challenges. It aims to provide a fast, simple, and expressive way to query and transform JSON data from the command line.
 
@@ -18,7 +27,6 @@ In particular, `gq` has served as a personal case study to practice:
 
 An article detailing these learnings and trade-offs is planned.
 
----
 
 ## Installation
 
@@ -45,7 +53,6 @@ You can pull it with:
 docker pull jmpargana/gq
 ```
 
----
 
 ## Usage
 
@@ -95,7 +102,6 @@ Output:
 ]
 ```
 
----
 
 ## Development
 
@@ -128,7 +134,6 @@ cat input.json | docker run -i gq '.[0]'
 
 The Docker image is built using a minimal base and is ready to run without additional dependencies.
 
----
 
 ## Release & Distribution
 
