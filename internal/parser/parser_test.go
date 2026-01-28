@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"reflect"
 	"testing"
 
 	l "github.com/jmpargana/gq/internal/lexer"
@@ -366,7 +367,7 @@ func TestBuildTree(t *testing.T) {
 		t.Run(tC.desc, func(t *testing.T) {
 			p := NewParser(tC.cmds)
 			got := p.ParseExpr()
-			if !got.IsEqual(tC.pgr) {
+			if !reflect.DeepEqual(tC.pgr, got) {
 				t.Fatalf("\nexpected:\n\t%v\ngot:\n\t%v\n", tC.pgr, got)
 			}
 		})
