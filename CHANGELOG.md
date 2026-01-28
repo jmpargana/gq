@@ -1,3 +1,10 @@
+## [1.6.5](https://github.com/jmpargana/gq/compare/v1.6.4...v1.6.5) (2026-01-28)
+
+
+### Bug Fixes
+
+* allow query as first arg ([b596016](https://github.com/jmpargana/gq/commit/b596016fc588ad7e3fa177e43f7b10ae88954dfc))
+
 ## [1.6.4](https://github.com/jmpargana/gq/compare/v1.6.3...v1.6.4) (2026-01-28)
 
 
