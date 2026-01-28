@@ -26,45 +26,27 @@ body:
         Please list steps someone can follow to trigger the issue.
         
         For example:
-        1. Run `helm install mychart ./path-to-chart -f values.yaml --debug`
+        1. Run `cat input.json | gq '...'`
         2. Observe the following error: ...
 
         You can include:
-        - a sample `values.yaml` block
-        - a link to a chart
-        - specific `helm` commands used
+        - a sample `query` string
 
         This helps others reproduce and debug your issue more effectively.
     validations:
       required: true
 
   - type: textarea
-    id: helmVersion
+    id: gqVersion
     attributes:
-      label: Helm version
+      label: gq version
       value: |
         <details>
         
         ```console
-        $ helm version
+        $ gq version
         # paste output here
         ```
-        </details>
-    validations:
-      required: true
-
-  - type: textarea
-    id: kubeVersion
-    attributes:
-      label: Kubernetes version
-      value: |
-        <details>
-
-        ```console
-        $ kubectl version
-        # paste output here
-        ```
-
         </details>
     validations:
       required: true
