@@ -1,10 +1,6 @@
 
-<!-- Add badges as needed -->
-
-<!-- Example:
-[![Go Version](https://img.shields.io/badge/go-1.22+-blue)]()
 [![License](https://img.shields.io/badge/license-MIT-green)]()
--->
+![coverage](https://raw.githubusercontent.com/org/project/badges/.badges/main/coverage.svg)
 
 # gq
 
