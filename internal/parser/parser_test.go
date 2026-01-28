@@ -3,75 +3,222 @@ package parser
 import (
 	"testing"
 
+	l "github.com/jmpargana/gq/internal/lexer"
 	u "github.com/jmpargana/gq/internal/utils"
 )
 
 func TestBuildTree(t *testing.T) {
 	testCases := []struct {
 		desc string
-		cmds []u.Cmd
+		cmds []l.Token
 		pgr  u.Node
 	}{
 		{
-			desc: "single index",
-			cmds: []u.Cmd{
-				{Kind: u.IDX},
+			desc: "single root index",
+			cmds: []l.Token{
+				{Kind: l.DOT},
+				{Kind: l.EOF},
 			},
-			pgr: u.Node{Value: u.Cmd{Kind: u.IDX}},
+			pgr: u.Node{Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.ROOT}}}},
+		},
+		{
+			desc: "single number",
+			cmds: []l.Token{
+				{Kind: l.DOT},
+				{Kind: l.LBRACE},
+				{Kind: l.NUMBER, Value: "5"},
+				{Kind: l.RBRACE},
+				{Kind: l.EOF},
+			},
+			pgr: u.Node{Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.IDX, Idx: 5}}}},
+		},
+		{
+			desc: "single ident",
+			cmds: []l.Token{
+				{Kind: l.DOT},
+				{Kind: l.IDENT, Value: "a"},
+				{Kind: l.EOF},
+			},
+			pgr: u.Node{Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.FIELD, Name: "a"}}}},
+		},
+		{
+			desc: "single string",
+			cmds: []l.Token{
+				{Kind: l.DOT},
+				{Kind: l.STRING, Value: "a"},
+				{Kind: l.EOF},
+			},
+			pgr: u.Node{Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.FIELD, Name: "a"}}}},
+		},
+		{
+			desc: "single string inside braces",
+			cmds: []l.Token{
+				{Kind: l.DOT},
+				{Kind: l.LBRACE},
+				{Kind: l.STRING, Value: "a"},
+				{Kind: l.RBRACE},
+				{Kind: l.EOF},
+			},
+			pgr: u.Node{Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.FIELD, Name: "a"}}}},
+		},
+		{
+			desc: "single ident inside braces",
+			cmds: []l.Token{
+				{Kind: l.DOT},
+				{Kind: l.LBRACE},
+				{Kind: l.IDENT, Value: "a"},
+				{Kind: l.RBRACE},
+				{Kind: l.EOF},
+			},
+			pgr: u.Node{Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.FIELD, Name: "a"}}}},
+		},
+		{
+			desc: "single iterator",
+			cmds: []l.Token{
+				{Kind: l.DOT},
+				{Kind: l.LBRACE},
+				{Kind: l.RBRACE},
+				{Kind: l.EOF},
+			},
+			pgr: u.Node{Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.ARRAY}}}},
+		},
+		{
+			desc: "double number",
+			cmds: []l.Token{
+				{Kind: l.DOT},
+				{Kind: l.LBRACE},
+				{Kind: l.NUMBER, Value: "5"},
+				{Kind: l.RBRACE},
+				{Kind: l.LBRACE},
+				{Kind: l.NUMBER, Value: "4"},
+				{Kind: l.RBRACE},
+				{Kind: l.EOF},
+			},
+			pgr: u.Node{Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.IDX, Idx: 5}, {Kind: u.IDX, Idx: 4}}}},
+		},
+		{
+			desc: "double number with dot",
+			cmds: []l.Token{
+				{Kind: l.DOT},
+				{Kind: l.LBRACE},
+				{Kind: l.NUMBER, Value: "5"},
+				{Kind: l.RBRACE},
+				{Kind: l.DOT},
+				{Kind: l.LBRACE},
+				{Kind: l.NUMBER, Value: "4"},
+				{Kind: l.RBRACE},
+				{Kind: l.EOF},
+			},
+			pgr: u.Node{Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.IDX, Idx: 5}, {Kind: u.IDX, Idx: 4}}}},
+		},
+		{
+			desc: "ident + ident",
+			cmds: []l.Token{
+				{Kind: l.DOT},
+				{Kind: l.IDENT, Value: "a"},
+				{Kind: l.DOT},
+				{Kind: l.IDENT, Value: "b"},
+				{Kind: l.EOF},
+			},
+			pgr: u.Node{Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.FIELD, Name: "a"}, {Kind: u.FIELD, Name: "b"}}}},
+		},
+		{
+			desc: "string + string in braces",
+			cmds: []l.Token{
+				{Kind: l.DOT},
+				{Kind: l.STRING, Value: "a"},
+				{Kind: l.LBRACE},
+				{Kind: l.STRING, Value: "b"},
+				{Kind: l.RBRACE},
+				{Kind: l.EOF},
+			},
+			pgr: u.Node{Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.FIELD, Name: "a"}, {Kind: u.FIELD, Name: "b"}}}},
+		},
+		{
+			desc: "string + iterator",
+			cmds: []l.Token{
+				{Kind: l.DOT},
+				{Kind: l.STRING, Value: "a"},
+				{Kind: l.LBRACE},
+				{Kind: l.RBRACE},
+				{Kind: l.EOF},
+			},
+			pgr: u.Node{Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.FIELD, Name: "a"}, {Kind: u.ARRAY}}}},
 		},
 		{
 			desc: "single depth",
-			cmds: []u.Cmd{
-				{Kind: u.INDEXSTART},
-				{Kind: u.IDX},
-				{Kind: u.INDEXEND},
+			cmds: []l.Token{
+				{Kind: l.LBRACE},
+				{Kind: l.DOT},
+				{Kind: l.RBRACE},
+				{Kind: l.EOF},
 			},
-			pgr: u.Node{Value: u.Cmd{Kind: u.INDEXSTART}, Children: []u.Node{{Value: u.Cmd{Kind: u.IDX}}}},
+			pgr: u.Node{Value: u.Cmd{Kind: u.INDEXSTART}, Children: []u.Node{{Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.ROOT}}}}}},
 		},
 		{
 			desc: "multiple depth",
-			cmds: []u.Cmd{
-				{Kind: u.INDEXSTART},
-				{Kind: u.INDEXSTART},
-				{Kind: u.IDX},
-				{Kind: u.INDEXEND},
-				{Kind: u.INDEXEND},
+			cmds: []l.Token{
+				{Kind: l.LBRACE},
+				{Kind: l.LBRACE},
+				{Kind: l.DOT},
+				{Kind: l.RBRACE},
+				{Kind: l.RBRACE},
+				{Kind: l.EOF},
 			},
 			pgr: u.Node{Value: u.Cmd{Kind: u.INDEXSTART}, Children: []u.Node{{Value: u.Cmd{Kind: u.INDEXSTART}, Children: []u.Node{
-				{Value: u.Cmd{Kind: u.IDX}}}}}},
+				{Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.ROOT}}}}}}}},
 		},
 		{
 			desc: "u.PIPE",
-			cmds: []u.Cmd{
-				{Kind: u.IDX},
-				{Kind: u.PIPE},
-				{Kind: u.IDX},
+			cmds: []l.Token{
+				{Kind: l.DOT},
+				{Kind: l.PIPE},
+				{Kind: l.DOT},
+				{Kind: l.EOF},
 			},
-			pgr: u.Node{Value: u.Cmd{Kind: u.PIPE}, Children: []u.Node{{Value: u.Cmd{Kind: u.IDX}}, {Value: u.Cmd{Kind: u.IDX}}}},
+			pgr: u.Node{Value: u.Cmd{Kind: u.PIPE}, Children: []u.Node{{Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.ROOT}}}}, {Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.ROOT}}}}}},
 		},
 		{
 			desc: "u.PIPE + depth",
-			cmds: []u.Cmd{
-				{Kind: u.INDEXSTART},
-				{Kind: u.IDX},
-				{Kind: u.INDEXEND},
-				{Kind: u.PIPE},
-				{Kind: u.IDX},
+			cmds: []l.Token{
+				{Kind: l.LBRACE},
+				{Kind: l.DOT},
+				{Kind: l.RBRACE},
+				{Kind: l.PIPE},
+				{Kind: l.DOT},
+				{Kind: l.EOF},
 			},
-			pgr: u.Node{Value: u.Cmd{Kind: u.PIPE}, Children: []u.Node{{Value: u.Cmd{Kind: u.INDEXSTART}, Children: []u.Node{{Value: u.Cmd{Kind: u.IDX}}}}, {Value: u.Cmd{Kind: u.IDX}}}},
+			pgr: u.Node{
+				Value: u.Cmd{Kind: u.PIPE},
+				Children: []u.Node{
+					{
+						Value: u.Cmd{Kind: u.INDEXSTART},
+						Children: []u.Node{
+							{Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.ROOT}}}},
+						},
+					},
+					{Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.ROOT}}}},
+				},
+			},
 		},
 		{
 			desc: "generates proper hierarchy",
-			cmds: []u.Cmd{
-				{Kind: u.INDEXSTART},
-				{Kind: u.INDEXSTART},
-				{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.FIELD, Name: "a"}}},
-				{Kind: u.PIPE},
-				{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.FIELD, Name: "b"}}},
-				{Kind: u.INDEXEND},
-				{Kind: u.PIPE},
-				{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.IDX, Idx: 0}}},
-				{Kind: u.INDEXEND},
+			cmds: []l.Token{
+				{Kind: l.LBRACE},
+				{Kind: l.LBRACE},
+				{Kind: l.DOT},
+				{Kind: l.STRING, Value: "a"},
+				{Kind: l.PIPE},
+				{Kind: l.DOT},
+				{Kind: l.STRING, Value: "b"},
+				{Kind: l.RBRACE},
+				{Kind: l.PIPE},
+				{Kind: l.DOT},
+				{Kind: l.LBRACE},
+				{Kind: l.NUMBER, Value: "0"},
+				{Kind: l.RBRACE},
+				{Kind: l.RBRACE},
+				{Kind: l.EOF},
 			},
 			pgr: u.Node{
 				Value: u.Cmd{Kind: u.INDEXSTART},
@@ -99,13 +246,16 @@ func TestBuildTree(t *testing.T) {
 		},
 		{
 			desc: "u.PIPE + dict",
-			cmds: []u.Cmd{
-				{Kind: u.DICTSTART},
-				{Kind: u.ASSIGN},
-				{Kind: u.IDX},
-				{Kind: u.DICTEND},
-				{Kind: u.PIPE},
-				{Kind: u.IDX},
+			cmds: []l.Token{
+				{Kind: l.LBRACKET},
+				{Kind: l.IDENT, Value: "a"},
+				{Kind: l.COLON},
+				{Kind: l.DOT},
+				{Kind: l.IDENT, Value: "b"},
+				{Kind: l.RBRACKET},
+				{Kind: l.PIPE},
+				{Kind: l.DOT},
+				{Kind: l.EOF},
 			},
 			pgr: u.Node{
 				Value: u.Cmd{Kind: u.PIPE},
@@ -113,61 +263,74 @@ func TestBuildTree(t *testing.T) {
 					{
 						Value: u.Cmd{Kind: u.DICTSTART},
 						Children: []u.Node{
-							{Value: u.Cmd{Kind: u.ASSIGN}, Children: []u.Node{{Value: u.Cmd{Kind: u.IDX}}}},
+							{Value: u.Cmd{Kind: u.ASSIGN, Ident: "a"}, Children: []u.Node{{Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.FIELD, Name: "b"}}}}}},
 						},
 					},
-					{Value: u.Cmd{Kind: u.IDX}},
+					{Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.ROOT}}}},
 				}},
 		},
 		{
 			desc: "dict, multiple Values",
-			cmds: []u.Cmd{
-				{Kind: u.DICTSTART},
-				{Kind: u.ASSIGN},
-				{Kind: u.IDX},
-				{Kind: u.COMMA},
-				{Kind: u.ASSIGN},
-				{Kind: u.IDX},
-				{Kind: u.COMMA},
-				{Kind: u.ASSIGN},
-				{Kind: u.IDX},
-				{Kind: u.DICTEND},
+			cmds: []l.Token{
+				{Kind: l.LBRACKET},
+				{Kind: l.IDENT, Value: "a"},
+				{Kind: l.COLON},
+				{Kind: l.DOT},
+				{Kind: l.COMMA},
+				{Kind: l.IDENT, Value: "b"},
+				{Kind: l.COLON},
+				{Kind: l.DOT},
+				{Kind: l.LBRACE},
+				{Kind: l.RBRACE},
+				{Kind: l.COMMA},
+				{Kind: l.IDENT, Value: "c"},
+				{Kind: l.COLON},
+				{Kind: l.DOT},
+				{Kind: l.LBRACE},
+				{Kind: l.IDENT, Value: "d"},
+				{Kind: l.RBRACE},
+				{Kind: l.RBRACKET},
+				{Kind: l.EOF},
 			},
 			pgr: u.Node{
 				Value: u.Cmd{Kind: u.DICTSTART},
 				Children: []u.Node{
-					{Value: u.Cmd{Kind: u.ASSIGN}, Children: []u.Node{
-						{Value: u.Cmd{Kind: u.IDX}},
+					{Value: u.Cmd{Kind: u.ASSIGN, Ident: "a"}, Children: []u.Node{
+						{Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.ROOT}}}},
 					}},
-					{Value: u.Cmd{Kind: u.ASSIGN}, Children: []u.Node{
-						{Value: u.Cmd{Kind: u.IDX}},
+					{Value: u.Cmd{Kind: u.ASSIGN, Ident: "b"}, Children: []u.Node{
+						{Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.ARRAY}}}},
 					}},
-					{Value: u.Cmd{Kind: u.ASSIGN}, Children: []u.Node{
-						{Value: u.Cmd{Kind: u.IDX}},
+					{Value: u.Cmd{Kind: u.ASSIGN, Ident: "c"}, Children: []u.Node{
+						{Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.FIELD, Name: "d"}}}},
 					}},
 				}},
 		},
 		{
 			desc: "dict, array, u.PIPE",
-			cmds: []u.Cmd{
-				{Kind: u.DICTSTART},
-				{Kind: u.ASSIGN},
-				{Kind: u.IDX},
-				{Kind: u.COMMA},
-				{Kind: u.ASSIGN},
-				{Kind: u.INDEXSTART},
-				{Kind: u.IDX},
-				{Kind: u.INDEXEND},
-				{Kind: u.COMMA},
-				{Kind: u.ASSIGN},
-				{Kind: u.INDEXSTART},
-				{Kind: u.IDX},
-				{Kind: u.PIPE},
-				{Kind: u.IDX},
-				{Kind: u.INDEXEND},
-				{Kind: u.DICTEND},
-				{Kind: u.PIPE},
-				{Kind: u.IDX},
+			cmds: []l.Token{
+				{Kind: l.LBRACKET},
+				{Kind: l.IDENT, Value: "a"},
+				{Kind: l.COLON},
+				{Kind: l.DOT},
+				{Kind: l.COMMA},
+				{Kind: l.IDENT, Value: "b"},
+				{Kind: l.COLON},
+				{Kind: l.LBRACE},
+				{Kind: l.DOT},
+				{Kind: l.RBRACE},
+				{Kind: l.COMMA},
+				{Kind: l.IDENT, Value: "c"},
+				{Kind: l.COLON},
+				{Kind: l.LBRACE},
+				{Kind: l.DOT},
+				{Kind: l.PIPE},
+				{Kind: l.DOT},
+				{Kind: l.RBRACE},
+				{Kind: l.RBRACKET},
+				{Kind: l.PIPE},
+				{Kind: l.DOT},
+				{Kind: l.EOF},
 			},
 			pgr: u.Node{
 				Value: u.Cmd{Kind: u.PIPE},
@@ -175,25 +338,25 @@ func TestBuildTree(t *testing.T) {
 					{
 						Value: u.Cmd{Kind: u.DICTSTART},
 						Children: []u.Node{
-							{Value: u.Cmd{Kind: u.ASSIGN}, Children: []u.Node{
-								{Value: u.Cmd{Kind: u.IDX}},
+							{Value: u.Cmd{Kind: u.ASSIGN, Ident: "a"}, Children: []u.Node{
+								{Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.ROOT}}}},
 							}},
-							{Value: u.Cmd{Kind: u.ASSIGN}, Children: []u.Node{
-								{Value: u.Cmd{Kind: u.INDEXSTART}, Children: []u.Node{{Value: u.Cmd{Kind: u.IDX}}}},
+							{Value: u.Cmd{Kind: u.ASSIGN, Ident: "b"}, Children: []u.Node{
+								{Value: u.Cmd{Kind: u.INDEXSTART}, Children: []u.Node{{Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.ROOT}}}}}},
 							}},
-							{Value: u.Cmd{Kind: u.ASSIGN}, Children: []u.Node{
+							{Value: u.Cmd{Kind: u.ASSIGN, Ident: "c"}, Children: []u.Node{
 								{
 									Value: u.Cmd{Kind: u.INDEXSTART},
 									Children: []u.Node{
 										{Value: u.Cmd{Kind: u.PIPE}, Children: []u.Node{
-											{Value: u.Cmd{Kind: u.IDX}},
-											{Value: u.Cmd{Kind: u.IDX}},
+											{Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.ROOT}}}},
+											{Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.ROOT}}}},
 										}},
 									},
 								},
 							}},
 						}},
-					{Value: u.Cmd{Kind: u.IDX}},
+					{Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.ROOT}}}},
 				},
 			},
 		},
@@ -204,7 +367,7 @@ func TestBuildTree(t *testing.T) {
 			p := NewParser(tC.cmds)
 			got := p.ParseExpr()
 			if !got.IsEqual(tC.pgr) {
-				t.Fatalf("\nexpected: %v\ngot: %v\n", tC.pgr, got)
+				t.Fatalf("\nexpected:\n\t%v\ngot:\n\t%v\n", tC.pgr, got)
 			}
 		})
 	}
