@@ -26,7 +26,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestCLI_Version(t *testing.T) {
-	cmd := exec.Command(cliPath, "--version")
+	cmd := exec.Command(cliPath, "version")
 
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
