@@ -2,149 +2,173 @@ package lexer
 
 import (
 	"bufio"
-	"strconv"
 	"strings"
-
-	u "github.com/jmpargana/gq/internal/utils"
+	"unicode"
 )
 
-func createIdxField(s string) u.IdxField {
-	n, err := strconv.Atoi(s)
-	if err != nil {
-		if s == "" {
-			return u.IdxField{Kind: u.ROOT}
-		}
-		return u.IdxField{Kind: u.FIELD, Name: s}
-	}
-	return u.IdxField{Kind: u.IDX, Idx: n}
+type TokenKind int
+
+const (
+	LBRACKET TokenKind = iota
+	RBRACKET
+	LBRACE
+	RBRACE
+	DOT
+	PIPE
+	COMMA
+	COLON
+	IDENT
+	NUMBER
+	STRING
+	EOF
+	ILLEGAL
+)
+
+type Token struct {
+	Kind  TokenKind
+	Value string
 }
 
-func Lex(program string) []u.Cmd {
-	// TODO: missing all array index => []
-	pgr := []u.Cmd{}
-	fields := []u.IdxField{}
-	r := bufio.NewReader(strings.NewReader(program))
-	fieldName := ""
-	indexing := false
-	wrapping := 0
-	mapping := 0
-	prev := ' '
+type Lexer struct {
+	r   *bufio.Reader
+	ch  rune
+	eof bool
+}
+
+func Lex(s string) []Token {
+	return lex(s)
+}
+
+func lex(s string) []Token {
+	l := newLexer(s)
+	var tokens []Token
 	for {
-		rn, _, err := r.ReadRune()
-		if err != nil {
+		tok := l.nextToken()
+		tokens = append(tokens, tok)
+		if tok.Kind == EOF {
 			break
 		}
-		switch rn {
-		case '|':
-			if indexing {
-				if prev == '[' {
-					fields = append(fields, u.IdxField{Kind: u.ARRAY})
-				} else {
-					fields = append(fields, createIdxField(fieldName))
-				}
-				pgr = append(pgr, u.Cmd{Kind: u.IDX, Fields: fields})
-				fields = []u.IdxField{}
-				fieldName = ""
-				indexing = false
-				pgr = append(pgr, u.Cmd{Kind: u.PIPE})
-			} else {
-				fields = []u.IdxField{}
-				fieldName = ""
-				indexing = false
-				pgr = append(pgr, u.Cmd{Kind: u.PIPE})
-			}
-			prev = ' '
-		case '"', ' ':
-		case ']':
-			// Check conflict with }
-			if wrapping > 0 {
-				if prev != ']' && prev != '}' {
-					if prev == '[' {
-						fields = append(fields, u.IdxField{Kind: u.ARRAY})
-					} else {
-						fields = append(fields, createIdxField(fieldName))
-					}
-					pgr = append(pgr, u.Cmd{Kind: u.IDX, Fields: fields})
-				}
-				fieldName = ""
-				fields = []u.IdxField{}
-				if prev != '[' {
-					pgr = append(pgr, u.Cmd{Kind: u.INDEXEND})
-					wrapping--
-				}
-				indexing = false
-				prev = ']'
-			}
-		case '[':
-			if !indexing {
-				pgr = append(pgr, u.Cmd{Kind: u.INDEXSTART})
-				wrapping++
-			}
-			if fieldName != "" {
-				fields = append(fields, createIdxField(fieldName))
-				fieldName = ""
-			}
-			prev = '['
-		case '.':
-			indexing = true
-			if fieldName != "" {
-				fields = append(fields, createIdxField(fieldName))
-				fieldName = ""
-			}
-		case '{':
-			mapping++
-			pgr = append(pgr, u.Cmd{Kind: u.DICTSTART})
-		case ':':
-			if fieldName != "" {
-				pgr = append(pgr, u.Cmd{Kind: u.ASSIGN, Ident: fieldName})
-				fieldName = ""
-			}
-		case ',':
-			if prev != ']' && prev != '}' {
-				if prev == '[' {
-					fields = append(fields, u.IdxField{Kind: u.ARRAY})
-				} else {
-					fields = append(fields, createIdxField(fieldName))
-				}
-				pgr = append(pgr, u.Cmd{Kind: u.IDX, Fields: fields})
-				prev = ' '
-			}
-			fieldName = ""
-			fields = []u.IdxField{}
-			pgr = append(pgr, u.Cmd{Kind: u.COMMA})
-		case '}':
-			if mapping > 0 {
-				if prev != ']' && prev != '}' {
-					if prev == '[' {
-						fields = append(fields, u.IdxField{Kind: u.ARRAY})
-					} else {
-						fields = append(fields, createIdxField(fieldName))
-					}
-					pgr = append(pgr, u.Cmd{Kind: u.IDX, Fields: fields})
-				}
-				fieldName = ""
-				fields = []u.IdxField{}
-				pgr = append(pgr, u.Cmd{Kind: u.DICTEND})
-				mapping--
-				indexing = false
-				prev = '}'
-			}
-		default:
-			// TODO: change to string builder
-			fieldName += string(rn)
-			prev = ' '
+	}
+	return tokens
+}
+
+func newLexer(s string) *Lexer {
+	r := bufio.NewReader(strings.NewReader(s))
+	ch, _, err := r.ReadRune()
+	if err != nil {
+		return &Lexer{
+			r:   r,
+			ch:  0,
+			eof: true,
 		}
 	}
-
-	// TODO: fix last value pop
-	if len(pgr) == 0 || (pgr[len(pgr)-1].Kind != u.INDEXEND && pgr[len(pgr)-1].Kind != u.DICTEND) {
-		if prev == '[' {
-			fields = append(fields, u.IdxField{Kind: u.ARRAY})
-		} else {
-			fields = append(fields, createIdxField(fieldName))
-		}
-		pgr = append(pgr, u.Cmd{Kind: u.IDX, Fields: fields})
+	return &Lexer{
+		r:   r,
+		ch:  ch,
+		eof: false,
 	}
+}
 
-	return pgr
+func (l *Lexer) nextToken() Token {
+	l.skipWhitespace()
+
+	switch l.ch {
+	case 0:
+		l.eof = true
+		return Token{Kind: EOF}
+	case '.':
+		l.read()
+		return Token{Kind: DOT}
+	case ',':
+		l.read()
+		return Token{Kind: COMMA}
+	case ':':
+		l.read()
+		return Token{Kind: COLON}
+	case '|':
+		l.read()
+		return Token{Kind: PIPE}
+	case '{':
+		l.read()
+		return Token{Kind: LBRACKET}
+	case '}':
+		l.read()
+		return Token{Kind: RBRACKET}
+	case '[':
+		l.read()
+		return Token{Kind: LBRACE}
+	case ']':
+		l.read()
+		return Token{Kind: RBRACE}
+	default:
+		if isDigit(l.ch) {
+			return l.readNumber()
+		}
+		if isIdentStart(l.ch) {
+			return l.readIdent()
+		}
+		if l.ch == '"' {
+			return l.readString()
+		}
+		illegal := l.ch
+		l.read()
+		return Token{Kind: ILLEGAL, Value: string(illegal)}
+	}
+}
+
+func (l *Lexer) readNumber() Token {
+	var b strings.Builder
+	for isDigit(l.ch) {
+		b.WriteRune(l.ch)
+		l.read()
+	}
+	return Token{Kind: NUMBER, Value: b.String()}
+}
+
+func (l *Lexer) readString() Token {
+	l.read() // skip "
+	var b strings.Builder
+	for l.ch != '"' && l.ch != 0 {
+		b.WriteRune(l.ch)
+		l.read()
+	}
+	l.read() // skip "
+	return Token{Kind: STRING, Value: b.String()}
+}
+
+func (l *Lexer) readIdent() Token {
+	var b strings.Builder
+	for isIdentChar(l.ch) {
+		b.WriteRune(l.ch)
+		l.read()
+	}
+	return Token{Kind: IDENT, Value: b.String()}
+}
+
+func (l *Lexer) read() {
+	ch, _, err := l.r.ReadRune()
+	if err != nil {
+		l.ch = 0
+		return
+	}
+	l.ch = ch
+}
+
+func (l *Lexer) skipWhitespace() {
+	for l.ch == ' ' || l.ch == '\n' || l.ch == '\t' {
+		l.read()
+	}
+}
+
+// TODO: move to utils
+func isDigit(r rune) bool {
+	return r >= '0' && r <= '9'
+}
+
+func isIdentStart(r rune) bool {
+	return r == '_' || unicode.IsLetter(r)
+}
+
+func isIdentChar(r rune) bool {
+	return isIdentStart(r) || isDigit(r)
 }

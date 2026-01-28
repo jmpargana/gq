@@ -1,35 +1,32 @@
 package parser
 
 import (
+	"strconv"
+
+	"github.com/jmpargana/gq/internal/lexer"
 	u "github.com/jmpargana/gq/internal/utils"
 )
 
-type token u.Cmd
-
 type Parser struct {
-	ts  []token
+	ts  []lexer.Token
 	pos int
 }
 
-func NewParser(cs []u.Cmd) *Parser {
-	ts := []token{}
-	for _, c := range cs {
-		ts = append(ts, token(c))
-	}
-	return &Parser{ts: ts, pos: 0}
+func NewParser(cs []lexer.Token) *Parser {
+	return &Parser{ts: cs, pos: 0}
 }
 
-func (p *Parser) peek() token {
+func (p *Parser) peek() lexer.Token {
 	return p.ts[p.pos]
 }
 
-func (p *Parser) advance() token {
+func (p *Parser) advance() lexer.Token {
 	t := p.ts[p.pos]
 	p.pos++
 	return t
 }
 
-func (p *Parser) match(kind u.Kind) bool {
+func (p *Parser) match(kind lexer.TokenKind) bool {
 	if p.pos >= len(p.ts) {
 		return false
 	}
@@ -40,17 +37,17 @@ func (p *Parser) match(kind u.Kind) bool {
 	return false
 }
 
-func (p *Parser) expect(k u.Kind) token {
+func (p *Parser) expect(k lexer.TokenKind) lexer.Token {
 	if p.peek().Kind == k {
 		return p.advance()
 	}
-	return token{}
+	return lexer.Token{}
 }
 
 func (p *Parser) ParseExpr() u.Node {
 	term := p.parseTerm()
 
-	for p.match(u.PIPE) {
+	for p.match(lexer.PIPE) {
 		right := p.parseTerm()
 		term = u.Node{Value: u.Cmd{Kind: u.PIPE}, Children: []u.Node{term, right}}
 	}
@@ -60,36 +57,95 @@ func (p *Parser) ParseExpr() u.Node {
 
 func (p *Parser) parseTerm() u.Node {
 	switch p.peek().Kind {
-	case u.IDX:
-		t := p.advance()
-		return u.Node{Value: u.Cmd(t)}
-	case u.INDEXSTART:
-		t := p.advance()
+	case lexer.DOT:
+		return p.parseIndex()
+	case lexer.LBRACE:
+		p.advance()
 		expr := p.ParseExpr()
-		p.expect(u.INDEXEND)
-		return u.Node{Value: u.Cmd(t), Children: []u.Node{expr}}
-	case u.DICTSTART:
+		p.expect(lexer.RBRACE)
+		return u.Node{Value: u.Cmd{Kind: u.INDEXSTART}, Children: []u.Node{expr}}
+	case lexer.LBRACKET:
 		return p.parseDict()
+	// FIXME:
+	default:
+		return u.Node{}
 	}
-	return u.Node{}
+}
+
+func (p *Parser) parseIndex() u.Node {
+	idxs := []u.IdxField{}
+
+	p.expect(lexer.DOT)
+	for {
+		tok := p.peek().Kind
+		if !isValidIndexStarter(tok) {
+			if len(idxs) == 0 {
+				idxs = append(idxs, u.IdxField{Kind: u.ROOT})
+			}
+			return u.Node{Value: u.Cmd{Kind: u.IDX, Fields: idxs}}
+		}
+
+		switch tok {
+		case lexer.DOT:
+			p.advance()
+		case lexer.IDENT, lexer.STRING:
+			t := p.advance()
+			idxs = append(idxs, u.IdxField{Kind: u.FIELD, Name: t.Value})
+		case lexer.LBRACE:
+			p.advance()
+			switch p.peek().Kind {
+			case lexer.RBRACE:
+				p.advance()
+				idxs = append(idxs, u.IdxField{Kind: u.ARRAY})
+			case lexer.NUMBER:
+				t := p.advance()
+				n, err := strconv.Atoi(t.Value)
+				if err != nil {
+					panic(err)
+				}
+				if !p.match(lexer.RBRACE) {
+					panic("need to close brace")
+				}
+				idxs = append(idxs, u.IdxField{Kind: u.IDX, Idx: n})
+			case lexer.IDENT, lexer.STRING:
+				t := p.advance()
+				if !p.match(lexer.RBRACE) {
+					panic("need to close brace")
+				}
+				idxs = append(idxs, u.IdxField{Kind: u.FIELD, Name: t.Value})
+			// FIXME: break if not matching
+			default:
+				continue
+			}
+		// FIXME: break if not matching
+		default:
+			continue
+		}
+	}
+
 }
 
 func (p *Parser) parseDict() u.Node {
-	t := p.expect(u.DICTSTART)
+	p.expect(lexer.LBRACKET)
 	assignments := []u.Node{}
 
 	assignments = append(assignments, p.parseAssignment())
 
-	for p.match(u.COMMA) {
+	for p.match(lexer.COMMA) {
 		assignments = append(assignments, p.parseAssignment())
 	}
 
-	p.expect(u.DICTEND)
+	p.expect(lexer.RBRACKET)
 
-	return u.Node{Value: u.Cmd(t), Children: assignments}
+	return u.Node{Value: u.Cmd{Kind: u.DICTSTART}, Children: assignments}
 }
 
 func (p *Parser) parseAssignment() u.Node {
-	ident := p.expect(u.ASSIGN)
-	return u.Node{Value: u.Cmd(ident), Children: []u.Node{p.ParseExpr()}}
+	ident := p.expect(lexer.IDENT)
+	p.expect(lexer.COLON)
+	return u.Node{Value: u.Cmd{Kind: u.ASSIGN, Ident: ident.Value}, Children: []u.Node{p.ParseExpr()}}
+}
+
+func isValidIndexStarter(t lexer.TokenKind) bool {
+	return t == lexer.IDENT || t == lexer.STRING || t == lexer.LBRACE || t == lexer.DOT
 }
