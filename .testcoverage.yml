@@ -26,6 +26,7 @@ exclude:
     - ^internal/gqjson/printer.go$    # handled in integration tests
     - ^cmd                            # handled in integration tests
     - ^internal/types                 # just type definitions
+    - ^internal/cmd                   # handled in integration tests
 
 # If specified, saves the current test coverage breakdown to this file.
 #
