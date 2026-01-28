@@ -1,6 +1,37 @@
 package gqjson
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
+
+type JSON struct {
+	O any
+}
+
+func NewJSON(o any) *JSON {
+	return &JSON{O: o}
+}
+
+func (j *JSON) String() string {
+	sb := strings.Builder{}
+	switch s := j.O.(type) {
+	case map[string]any:
+		sb.WriteString(printObj(s, 0))
+	case []any:
+		sb.WriteString(printList(s, 0))
+	case int64:
+		fmt.Fprintf(&sb, "%d", s)
+	case bool:
+		fmt.Fprintf(&sb, "%t", s)
+	case float64:
+		fmt.Fprintf(&sb, "%0.2f", s)
+	case string:
+		fmt.Fprintf(&sb, "\"%s\"", s)
+	}
+	sb.WriteRune('\n')
+	return sb.String()
+}
 
 const ident = 2
 
@@ -76,23 +107,4 @@ func printObj(obj map[string]any, level int) string {
 
 	s += "}"
 	return s
-}
-
-// type token any
-// TODO: refactor to token.String()
-func Print(s any) {
-	switch s := s.(type) {
-	case map[string]any:
-		fmt.Println(printObj(s, 0))
-	case []any:
-		fmt.Println(printList(s, 0))
-	case int64:
-		fmt.Printf("%d\n", s)
-	case bool:
-		fmt.Printf("%t\n", s)
-	case float64:
-		fmt.Printf("%0.2f\n", s)
-	case string:
-		fmt.Printf("\"%s\"\n", s)
-	}
 }

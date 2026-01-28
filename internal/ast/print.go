@@ -32,6 +32,8 @@ func printCmd(c u.Cmd, ident int) string {
 		fmt.Fprintf(&s, "ASSIGN: %s", c.Ident)
 	case u.ARRAY:
 		fmt.Fprintf(&s, "ARRAY:")
+	case u.INDEXSTART:
+		fmt.Fprintf(&s, "INDEXSTART:")
 	case u.DICTSTART:
 		fmt.Fprintf(&s, "DICT:")
 	case u.PIPE:

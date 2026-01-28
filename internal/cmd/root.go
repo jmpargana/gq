@@ -45,6 +45,12 @@ Additionally, you can also view the AST of your jqlang expression.
 
 		// TODO: replace with cobra args
 		tokens := lexer.Lex(os.Args[1])
+		for _, tok := range tokens {
+			if tok.Kind == lexer.ILLEGAL {
+				return fmt.Errorf("illegal token found: %v", tok.Value)
+			}
+		}
+
 		p := parser.NewParser(tokens)
 
 		t := p.ParseExpr()
@@ -57,12 +63,10 @@ Additionally, you can also view the AST of your jqlang expression.
 		}
 
 		obj := json.ParseObject(r)
-		stream := u.NewStream()
-		stream.O = append(stream.O, obj)
+		stream := u.NewSingleStream(obj)
+
 		result := ast.TransformStream(stream, t)
-		for _, r := range result.O {
-			json.Print(r)
-		}
+		fmt.Printf("%s", result.String())
 
 		return nil
 	},
