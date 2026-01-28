@@ -15,6 +15,20 @@
 # [1.6.0](https://github.com/jmpargana/gq/compare/v1.5.0...v1.6.0) (2026-01-28)
 
 
+### Bug Fixes
+
+* remove cover ([14c3d2d](https://github.com/jmpargana/gq/commit/14c3d2d0feabe712c30f0b883c655cb8249dfed8))
+
+
+### Features
+
+* add badges ([e5117f9](https://github.com/jmpargana/gq/commit/e5117f9f107a9a022bbe650310643b9946de3cea))
+* add coverage and badges ([d846724](https://github.com/jmpargana/gq/commit/d8467241c99b5df72c64b75684514e9c9bd27d3b))
+* refactor to cleaner lexer and parser ([10a7940](https://github.com/jmpargana/gq/commit/10a794056a896a470ec2f4e779bf2191c23a0d21))
+
+# [1.6.0](https://github.com/jmpargana/gq/compare/v1.5.0...v1.6.0) (2026-01-28)
+
+
 ### Features
 
 * refactor to cleaner lexer and parser ([10a7940](https://github.com/jmpargana/gq/commit/10a794056a896a470ec2f4e779bf2191c23a0d21))
