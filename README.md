@@ -4,7 +4,7 @@
 
 [![Go Version](https://img.shields.io/badge/go-1.25+-blue)]()
 [![License](https://img.shields.io/badge/license-MIT-green)]()
-![Coverage](https://raw.githubusercontent.com/org/project/badges/.badges/main/coverage.svg)
+![Coverage](https://raw.githubusercontent.com/jmpargana/gq/refs/heads/badges/.badges/main/coverage.svg)
 ![Go Report Card](https://goreportcard.com/badge/github.com/jmpargana/gq)
 ![Release](https://img.shields.io/github/v/release/jmpargana/gq)
 ![Homebrew](https://img.shields.io/badge/homebrew-available-brightgreen)
