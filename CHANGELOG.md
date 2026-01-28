@@ -1,3 +1,10 @@
+## [1.6.6](https://github.com/jmpargana/gq/compare/v1.6.5...v1.6.6) (2026-01-28)
+
+
+### Bug Fixes
+
+* index and iter bugs ([56c9ba8](https://github.com/jmpargana/gq/commit/56c9ba8b953dda738cc17c7048200d5c67c16ea6))
+
 ## [1.6.5](https://github.com/jmpargana/gq/compare/v1.6.4...v1.6.5) (2026-01-28)
 
 
