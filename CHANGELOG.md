@@ -1,3 +1,10 @@
+## [1.6.3](https://github.com/jmpargana/gq/compare/v1.6.2...v1.6.3) (2026-01-28)
+
+
+### Bug Fixes
+
+* goreleaser manpages archive ([d8ff3b1](https://github.com/jmpargana/gq/commit/d8ff3b1c1ad8cd324bb088d84747e77ea7118feb))
+
 ## [1.6.2](https://github.com/jmpargana/gq/compare/v1.6.1...v1.6.2) (2026-01-28)
 
 
