@@ -1,3 +1,10 @@
+## [1.6.2](https://github.com/jmpargana/gq/compare/v1.6.1...v1.6.2) (2026-01-28)
+
+
+### Bug Fixes
+
+* semantic release ([c4675a1](https://github.com/jmpargana/gq/commit/c4675a1ed4839f47db73f9be22b88d7a833b2e10))
+
 # [1.6.0](https://github.com/jmpargana/gq/compare/v1.5.0...v1.6.0) (2026-01-28)
 
 
