@@ -23,7 +23,7 @@ builds:
     main: ./cmd/gq
     ldflags:
       - -s -w
-      - -X github.com/jmpargana/gq/internal/cmd/version.version={{ .Version }}
+      - -X github.com/jmpargana/gq/internal/cmd.version={{ .Version }}
     goos:
       - linux
       - windows
