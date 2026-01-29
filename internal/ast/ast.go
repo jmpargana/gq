@@ -1,10 +1,11 @@
 package ast
 
 import (
+	"github.com/jmpargana/gq/internal/stream"
 	u "github.com/jmpargana/gq/internal/utils"
 )
 
-func TransformStream(s u.Stream, n u.Node) u.Stream {
+func TransformStream(s stream.Stream, n u.Node) stream.Stream {
 	prev := s
 
 	if n.Value.Kind == u.PIPE {
@@ -13,10 +14,10 @@ func TransformStream(s u.Stream, n u.Node) u.Stream {
 		left := TransformStream(prev, n.Children[0])
 		rightNode := n.Children[1]
 
-		next := u.NewStream()
+		next := stream.New()
 
 		for _, it := range left.O {
-			out := TransformStream(u.NewSingleStream(it), rightNode)
+			out := TransformStream(stream.NewS(it), rightNode)
 			next.O = append(next.O, out.O...)
 		}
 
@@ -38,7 +39,7 @@ func TransformStream(s u.Stream, n u.Node) u.Stream {
 	case u.INDEXSTART:
 		arr := []any{}
 		arr = append(arr, prev.O...)
-		prev = u.NewSingleStream(arr)
+		prev = stream.NewS(arr)
 	case u.DICTSTART:
 		prev = dictStream(prev, n)
 	}
@@ -46,8 +47,8 @@ func TransformStream(s u.Stream, n u.Node) u.Stream {
 	return prev
 }
 
-func indexStream(s u.Stream, c u.Cmd) u.Stream {
-	nextS := u.NewStream()
+func indexStream(s stream.Stream, c u.Cmd) stream.Stream {
+	nextS := stream.New()
 	for _, o := range s.O {
 		prevs := []any{o}
 
@@ -93,8 +94,8 @@ func cloneMap(m map[string]any) map[string]any {
 	return result
 }
 
-func dictStream(o u.Stream, n u.Node) u.Stream {
-	nextS := u.NewStream()
+func dictStream(o stream.Stream, n u.Node) stream.Stream {
+	nextS := stream.New()
 	for _, s := range o.O {
 		// cartesian product
 		partials := []map[string]any{
@@ -103,7 +104,7 @@ func dictStream(o u.Stream, n u.Node) u.Stream {
 
 		for _, c := range n.Children {
 
-			innerS := u.NewStream()
+			innerS := stream.New()
 			innerS.O = append(innerS.O, s)
 
 			innerS = TransformStream(innerS, c.Children[0])

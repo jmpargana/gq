@@ -9,7 +9,7 @@ import (
 	json "github.com/jmpargana/gq/internal/gqjson"
 	"github.com/jmpargana/gq/internal/lexer"
 	"github.com/jmpargana/gq/internal/parser"
-	u "github.com/jmpargana/gq/internal/utils"
+	"github.com/jmpargana/gq/internal/stream"
 	"github.com/spf13/cobra"
 )
 
@@ -63,7 +63,7 @@ Additionally, you can also view the AST of your jqlang expression.
 		}
 
 		obj := json.ParseObject(r)
-		stream := u.NewSingleStream(obj)
+		stream := stream.NewS(obj)
 
 		result := ast.TransformStream(stream, t)
 		fmt.Printf("%s", result.String())

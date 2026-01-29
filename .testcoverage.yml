@@ -15,7 +15,7 @@ threshold:
 
   # (optional; default 0) 
   # Minimum overall project coverage percentage required.
-  total: 70
+  total: 80
 
 # Holds regexp rules which will exclude matched files or packages 
 # from coverage statistics.
@@ -27,6 +27,7 @@ exclude:
     - ^cmd                            # handled in integration tests
     - ^internal/utils                 # just type definitions
     - ^internal/cmd                   # handled in integration tests
+    - ^internal/stream                   # handled in integration tests
 
 # If specified, saves the current test coverage breakdown to this file.
 #
