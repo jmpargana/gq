@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	json "github.com/jmpargana/gq/internal/gqjson"
+	"github.com/jmpargana/gq/internal/stream"
 	u "github.com/jmpargana/gq/internal/utils"
 )
 
@@ -124,9 +125,9 @@ func TestTranform(t *testing.T) {
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
 			a := json.ParseObject(bufio.NewReader(strings.NewReader(tC.a)))
-			s := u.NewSingleStream(a)
+			s := stream.NewS(a)
 			got := TransformStream(s, tC.pgr)
-			expected := u.NewSingleStream(tC.b)
+			expected := stream.NewS(tC.b)
 			if !reflect.DeepEqual(expected, got) {
 				t.Fatalf("not equal:\ngot: %v\nwanted: %v", got, expected)
 			}
@@ -138,13 +139,13 @@ func TestTransformStream(t *testing.T) {
 	testCases := []struct {
 		desc    string
 		start   string
-		result  u.Stream
+		result  stream.Stream
 		program u.Node
 	}{
 		{
 			desc:   "Array to stream",
 			start:  `[1, 2, 3, 4]`,
-			result: u.Stream{O: []any{int64(1), int64(2), int64(3), int64(4)}},
+			result: stream.Stream{O: []any{int64(1), int64(2), int64(3), int64(4)}},
 			program: u.Node{
 				Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.ARRAY}}},
 			},
@@ -152,7 +153,7 @@ func TestTransformStream(t *testing.T) {
 		{
 			desc:   "Array to stream to array",
 			start:  `[1, 2, 3, 4]`,
-			result: u.Stream{O: []any{[]interface{}{int64(1), int64(2), int64(3), int64(4)}}},
+			result: stream.Stream{O: []any{[]interface{}{int64(1), int64(2), int64(3), int64(4)}}},
 			program: u.Node{
 				Value:    u.Cmd{Kind: u.INDEXSTART},
 				Children: []u.Node{{Value: u.Cmd{Kind: u.IDX, Fields: []u.IdxField{{Kind: u.ARRAY}}}}},
@@ -161,7 +162,7 @@ func TestTransformStream(t *testing.T) {
 		{
 			desc:   "piped index to array",
 			start:  `[{"a": "b"}, {"a": "c"}]`,
-			result: u.Stream{O: []any{[]interface{}{"b", "c"}}},
+			result: stream.Stream{O: []any{[]interface{}{"b", "c"}}},
 			program: u.Node{
 				Value: u.Cmd{Kind: u.INDEXSTART},
 				Children: []u.Node{{
@@ -178,7 +179,7 @@ func TestTransformStream(t *testing.T) {
 			// '.[] | {letter: .a}'
 			desc:   "piped dict",
 			start:  `[{"a": "b"}, {"a": "c"}]`,
-			result: u.Stream{O: []any{map[string]any{"letter": "b"}, map[string]any{"letter": "c"}}},
+			result: stream.Stream{O: []any{map[string]any{"letter": "b"}, map[string]any{"letter": "c"}}},
 			program: u.Node{
 				Value: u.Cmd{Kind: u.PIPE},
 				Children: []u.Node{
@@ -205,7 +206,7 @@ func TestTransformStream(t *testing.T) {
 			// '{a: .[]}'
 			desc:   "streamed dict",
 			start:  `[[1], [2]]`,
-			result: u.Stream{O: []any{map[string]any{"a": []interface{}{int64(1)}}, map[string]any{"a": []interface{}{int64(2)}}}},
+			result: stream.Stream{O: []any{map[string]any{"a": []interface{}{int64(1)}}, map[string]any{"a": []interface{}{int64(2)}}}},
 			program: u.Node{
 				Value: u.Cmd{Kind: u.DICTSTART},
 				Children: []u.Node{
@@ -223,7 +224,7 @@ func TestTransformStream(t *testing.T) {
 			// '.[] | {a: .[]}'
 			desc:   "streamed dict",
 			start:  `[[1], [2]]`,
-			result: u.Stream{O: []any{map[string]any{"a": int64(1)}, map[string]any{"a": int64(2)}}},
+			result: stream.Stream{O: []any{map[string]any{"a": int64(1)}, map[string]any{"a": int64(2)}}},
 			program: u.Node{
 				Value: u.Cmd{Kind: u.PIPE},
 				Children: []u.Node{
@@ -246,7 +247,7 @@ func TestTransformStream(t *testing.T) {
 			// '[.[]]'
 			desc:   "array of iter",
 			start:  `[1, 2]`,
-			result: u.Stream{O: []any{[]any{int64(1), int64(2)}}},
+			result: stream.Stream{O: []any{[]any{int64(1), int64(2)}}},
 			program: u.Node{
 				Value: u.Cmd{Kind: u.INDEXSTART},
 				Children: []u.Node{
@@ -258,7 +259,7 @@ func TestTransformStream(t *testing.T) {
 			// '.[] | [.]'
 			desc:   "piped array",
 			start:  `[1, 2]`,
-			result: u.Stream{O: []any{[]any{int64(1)}, []any{int64(2)}}},
+			result: stream.Stream{O: []any{[]any{int64(1)}, []any{int64(2)}}},
 			program: u.Node{
 				Value: u.Cmd{Kind: u.PIPE},
 				Children: []u.Node{
@@ -277,7 +278,7 @@ func TestTransformStream(t *testing.T) {
 			// '.[] | {a: .[], b: .[]}'
 			desc:  "streamed dict",
 			start: `[[1], [2]]`,
-			result: u.Stream{O: []any{
+			result: stream.Stream{O: []any{
 				map[string]any{"a": int64(1), "b": int64(1)},
 				map[string]any{"a": int64(2), "b": int64(2)},
 			}},
@@ -309,7 +310,7 @@ func TestTransformStream(t *testing.T) {
 			// '{a: .[], b: .[]}'
 			desc:  "streamed dict",
 			start: `[[1], [2]]`,
-			result: u.Stream{O: []any{
+			result: stream.Stream{O: []any{
 				map[string]any{"a": []interface{}{int64(1)}, "b": []interface{}{int64(1)}},
 				map[string]any{"a": []interface{}{int64(1)}, "b": []interface{}{int64(2)}},
 				map[string]any{"a": []interface{}{int64(2)}, "b": []interface{}{int64(1)}},
@@ -337,8 +338,7 @@ func TestTransformStream(t *testing.T) {
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
 			a := json.ParseObject(bufio.NewReader(strings.NewReader(tC.start)))
-			s := u.NewStream()
-			s.O = []any{a}
+			s := stream.NewS(a)
 			got := TransformStream(s, tC.program)
 			if !reflect.DeepEqual(tC.result, got) {
 				t.Fatalf("not equal:\ngot: %v\nwanted: %v", got, tC.result)
