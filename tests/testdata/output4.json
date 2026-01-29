@@ -1,0 +1,37 @@
+[
+  {
+    "message": "Fix reversed pointer subtraction in `f_env` bounds check (#3465)",
+    "name": "GitHub",
+    "parents": [
+      "https://github.com/jqlang/jq/commit/d44baeb67ac21b3ff23ede8d103c21c8830ea8dd"
+    ]
+  },
+  {
+    "message": "Support arm/v7 architecture in Docker images (#3463)",
+    "name": "GitHub",
+    "parents": [
+      "https://github.com/jqlang/jq/commit/ea9e41f7587e2a515c9b7d28f3ab6ed00d30e5ce"
+    ]
+  },
+  {
+    "message": "build(deps): bump the official-actions group with 2 updates (#3450)",
+    "name": "GitHub",
+    "parents": [
+      "https://github.com/jqlang/jq/commit/f46dc3dd61cdcd49f0f8189748afe39b4b494546"
+    ]
+  },
+  {
+    "message": "build(deps): bump markdown from 3.9 to 3.10 in /docs (#3442)",
+    "name": "GitHub",
+    "parents": [
+      "https://github.com/jqlang/jq/commit/88b9c4920e643190eebddcf41e373856b5b9292e"
+    ]
+  },
+  {
+    "message": "Fix stder typo (#3446)nnThe manual was missing an ",
+    "name": "GitHub",
+    "parents": [
+      "https://github.com/jqlang/jq/commit/0eb3da11ed489189963045a3d4eb21ba343736cb"
+    ]
+  }
+]
