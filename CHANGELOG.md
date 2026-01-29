@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/jmpargana/gq/compare/v1.6.6...v1.7.0) (2026-01-29)
+
+
+### Features
+
+* add some int tests with test data ([edd72ce](https://github.com/jmpargana/gq/commit/edd72ce2bf24dc28a3946a0f86620c2752f3aadb))
+
 ## [1.6.6](https://github.com/jmpargana/gq/compare/v1.6.5...v1.6.6) (2026-01-28)
 
 
