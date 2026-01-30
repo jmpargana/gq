@@ -62,7 +62,10 @@ Additionally, you can also view the AST of your jqlang expression.
 			fmt.Println(ast.PrintAST(t, 0))
 		}
 
-		obj := json.ParseObject(r)
+		obj, err := json.ParseObject(r)
+		if err != nil {
+			return err
+		}
 		stream := stream.NewS(obj)
 
 		result := ast.TransformStream(stream, t)

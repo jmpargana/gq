@@ -2,17 +2,19 @@ package gqjson
 
 import (
 	"bufio"
+	"fmt"
+	"io"
 	"strconv"
 	"strings"
 )
 
-func parseString(r *bufio.Reader) string {
+func parseString(r *bufio.Reader) (string, error) {
 	var sb strings.Builder
 	var ignoreNext = false
 	for {
 		ch, _, err := r.ReadRune()
 		if err != nil {
-			return sb.String()
+			return sb.String(), fmt.Errorf("failed parsing string after %s with: %v", sb.String(), err)
 		}
 		if ch == '\\' {
 			ignoreNext = true
@@ -22,21 +24,27 @@ func parseString(r *bufio.Reader) string {
 			continue
 		}
 		if ch == '"' {
-			return sb.String()
+			return sb.String(), nil
 		}
 		sb.WriteRune(ch)
 	}
 }
 
-func parseNumber(ch rune, r *bufio.Reader) any {
+func parseNumber(ch rune, r *bufio.Reader) (any, error) {
 	b := []byte{byte(ch)}
 	for {
 		next, err := r.Peek(1)
 		if err != nil || next[0] == ',' || next[0] == '}' || next[0] == ']' {
+			if err != nil && err != io.EOF {
+				return nil, fmt.Errorf("failed parsing number: %v", err)
+			}
 			break
 		}
 		ch, err := r.ReadByte()
 		if err != nil {
+			if err != io.EOF {
+				return nil, fmt.Errorf("failed parsing number: %v", err)
+			}
 			break
 		}
 		b = append(b, ch)
@@ -44,16 +52,22 @@ func parseNumber(ch rune, r *bufio.Reader) any {
 
 	for _, c := range b {
 		if c == '.' || c == 'e' || c == 'E' {
-			f, _ := strconv.ParseFloat(string(b), 64)
-			return f
+			f, err := strconv.ParseFloat(string(b), 64)
+			if err != nil {
+				return nil, fmt.Errorf("failed parsing float: %v", err)
+			}
+			return f, nil
 		}
 	}
 
-	i, _ := strconv.ParseInt(string(b), 10, 64)
-	return i
+	i, err := strconv.ParseInt(string(b), 10, 64)
+	if err != nil {
+		return nil, fmt.Errorf("failed parsing int: %v", err)
+	}
+	return i, nil
 }
 
-func parseBool(ch rune, r *bufio.Reader) bool {
+func parseBool(ch rune, r *bufio.Reader) (bool, error) {
 	out := false
 	n := 4
 	if ch == 't' {
@@ -63,40 +77,63 @@ func parseBool(ch rune, r *bufio.Reader) bool {
 	for i := 0; i < n; i++ {
 		_, _, err := r.ReadRune()
 		if err != nil {
-			panic(err)
+			return false, fmt.Errorf("failed closing bool ident: %s", err)
 		}
 	}
-	return out
+	return out, nil
 }
 
-func parseList(r *bufio.Reader) []any {
+func parseList(r *bufio.Reader) ([]any, error) {
 	out := []any{}
 	for {
 		ch, _, err := r.ReadRune()
 		if err != nil {
+			if err != io.EOF {
+				return nil, fmt.Errorf("failed parsing list: %v", err)
+			}
 			break
 		}
 		switch ch {
 		case '{':
-			out = append(out, ParseObject(r))
+			o, err := ParseObject(r)
+			if err != nil {
+				return nil, err
+			}
+			out = append(out, o)
 		case ',':
 			continue
 		case ']':
-			return out
+			return out, nil
 		case '[':
-			out = append(out, parseList(r))
+			l, err := parseList(r)
+			if err != nil {
+				return nil, err
+			}
+			out = append(out, l)
 		case '"':
-			out = append(out, parseString(r))
+			s, err := parseString(r)
+			if err != nil {
+				return nil, err
+			}
+			out = append(out, s)
 		case 't', 'f':
-			out = append(out, parseBool(ch, r))
+			b, err := parseBool(ch, r)
+			if err != nil {
+				return nil, err
+			}
+			out = append(out, b)
 		case '1', '2', '3', '4', '5', '6', '7', '8', '9', '0':
-			out = append(out, parseNumber(ch, r))
+			n, err := parseNumber(ch, r)
+			if err != nil {
+				return nil, err
+			}
+			out = append(out, n)
 		}
 	}
-	return out
+	return out, fmt.Errorf("unclosed array")
 }
 
-func ParseObject(r *bufio.Reader) any {
+func ParseObject(r *bufio.Reader) (any, error) {
 	out := map[string]any{}
 	ident := ""
 	key := true
@@ -104,56 +141,63 @@ func ParseObject(r *bufio.Reader) any {
 	for {
 		ch, _, err := r.ReadRune()
 		if err != nil {
+			if err != io.EOF {
+				return nil, fmt.Errorf("failed parsing object: %v", err)
+			}
 			break
 		}
 		switch ch {
 		case '[':
-			{
-				if pendingKey != "" {
-					out[pendingKey] = parseList(r)
-				} else {
-					return parseList(r)
+			if pendingKey != "" {
+				l, err := parseList(r)
+				if err != nil {
+					return nil, err
 				}
+				out[pendingKey] = l
+			} else {
+				return parseList(r)
 			}
 		case '{':
-			{
-				if pendingKey != "" {
-					out[pendingKey] = ParseObject(r)
+			if pendingKey != "" {
+				o, err := ParseObject(r)
+				if err != nil {
+					return nil, err
 				}
+				out[pendingKey] = o
 			}
 		case '"':
-			{
-				ident = parseString(r)
-				if key {
-					pendingKey = ident
-				} else {
-					out[pendingKey] = ident
-					pendingKey = ""
-				}
+			s, err := parseString(r)
+			if err != nil {
+				return nil, err
+			}
+			ident = s
+			if key {
+				pendingKey = ident
+			} else {
+				out[pendingKey] = ident
+				pendingKey = ""
 			}
 		case ':':
-			{
-				key = false
-			}
+			key = false
 		case ',':
-			{
-				key = true
-			}
+			key = true
 		case 't', 'f':
-			{
-				out[pendingKey] = parseBool(ch, r)
-				pendingKey = ""
+			b, err := parseBool(ch, r)
+			if err != nil {
+				return nil, err
 			}
+			out[pendingKey] = b
+			pendingKey = ""
 		case '1', '2', '3', '4', '5', '6', '7', '8', '9', '0':
-			{
-				out[pendingKey] = parseNumber(ch, r)
-				pendingKey = ""
+			n, err := parseNumber(ch, r)
+			if err != nil {
+				return nil, err
 			}
-		case ']':
-			return out
+			out[pendingKey] = n
+			pendingKey = ""
 		case '}':
-			return out
+			return out, nil
 		}
 	}
-	return out
+	return out, fmt.Errorf("invalid object")
 }
