@@ -124,7 +124,10 @@ func TestTranform(t *testing.T) {
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			a := json.ParseObject(bufio.NewReader(strings.NewReader(tC.a)))
+			a, err := json.ParseObject(bufio.NewReader(strings.NewReader(tC.a)))
+			if err != nil {
+				t.Fatalf("expected no error, instead got: %v", err)
+			}
 			s := stream.NewS(a)
 			got := TransformStream(s, tC.pgr)
 			expected := stream.NewS(tC.b)
@@ -337,7 +340,10 @@ func TestTransformStream(t *testing.T) {
 	}
 	for _, tC := range testCases {
 		t.Run(tC.desc, func(t *testing.T) {
-			a := json.ParseObject(bufio.NewReader(strings.NewReader(tC.start)))
+			a, err := json.ParseObject(bufio.NewReader(strings.NewReader(tC.start)))
+			if err != nil {
+				t.Fatalf("expected no error, instead got: %v", err)
+			}
 			s := stream.NewS(a)
 			got := TransformStream(s, tC.program)
 			if !reflect.DeepEqual(tC.result, got) {

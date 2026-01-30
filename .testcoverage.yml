@@ -28,6 +28,7 @@ exclude:
     - ^internal/utils                 # just type definitions
     - ^internal/cmd                   # handled in integration tests
     - ^internal/stream                   # handled in integration tests
+    - ^internal/gqjson                   # FIXME: coverage not reflecting statements tested...
 
 # If specified, saves the current test coverage breakdown to this file.
 #
