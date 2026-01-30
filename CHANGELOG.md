@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/jmpargana/gq/compare/v1.7.0...v1.8.0) (2026-01-30)
+
+
+### Features
+
+* add error handling to gqjson package ([9ee13ce](https://github.com/jmpargana/gq/commit/9ee13ce82c0db2440e16dd8f1d5157cb1fe268ff))
+
 # [1.7.0](https://github.com/jmpargana/gq/compare/v1.6.6...v1.7.0) (2026-01-29)
 
 
